@@ -1,0 +1,156 @@
+{
+  "Version": 1,
+  "WorkspaceRootPath": "C:\\Users\\maarten\\Source\\wegrep\\src\\Wegrep.Api\\",
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{692AE7F3-646A-E0F2-19FC-431801534646}|Wegrep.Api.csproj|c:\\users\\maarten\\source\\wegrep\\src\\wegrep.api\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{692AE7F3-646A-E0F2-19FC-431801534646}|Wegrep.Api.csproj|solutionrelative:program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{692AE7F3-646A-E0F2-19FC-431801534646}|Wegrep.Api.csproj|c:\\users\\maarten\\source\\wegrep\\src\\wegrep.api\\controllers\\leaguecontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{692AE7F3-646A-E0F2-19FC-431801534646}|Wegrep.Api.csproj|solutionrelative:controllers\\leaguecontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{692AE7F3-646A-E0F2-19FC-431801534646}|Wegrep.Api.csproj|c:\\users\\maarten\\source\\wegrep\\src\\wegrep.api\\clients\\hockeydataclient.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{692AE7F3-646A-E0F2-19FC-431801534646}|Wegrep.Api.csproj|solutionrelative:clients\\hockeydataclient.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{692AE7F3-646A-E0F2-19FC-431801534646}|Wegrep.Api.csproj|c:\\users\\maarten\\source\\wegrep\\src\\wegrep.api\\clients\\model\\game.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{692AE7F3-646A-E0F2-19FC-431801534646}|Wegrep.Api.csproj|solutionrelative:clients\\model\\game.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{692AE7F3-646A-E0F2-19FC-431801534646}|Wegrep.Api.csproj|c:\\users\\maarten\\source\\wegrep\\src\\wegrep.api\\model\\gameteam.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{692AE7F3-646A-E0F2-19FC-431801534646}|Wegrep.Api.csproj|solutionrelative:model\\gameteam.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{692AE7F3-646A-E0F2-19FC-431801534646}|Wegrep.Api.csproj|c:\\users\\maarten\\source\\wegrep\\src\\wegrep.api\\clients\\ihockeydataclient.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{692AE7F3-646A-E0F2-19FC-431801534646}|Wegrep.Api.csproj|solutionrelative:clients\\ihockeydataclient.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{692AE7F3-646A-E0F2-19FC-431801534646}|Wegrep.Api.csproj|c:\\users\\maarten\\source\\wegrep\\src\\wegrep.api\\wegrep.api.csproj||{FA3CD31E-987B-443A-9B81-186104E8DAC1}|",
+      "RelativeMoniker": "D:0:0:{692AE7F3-646A-E0F2-19FC-431801534646}|Wegrep.Api.csproj|solutionrelative:wegrep.api.csproj||{FA3CD31E-987B-443A-9B81-186104E8DAC1}|"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{692AE7F3-646A-E0F2-19FC-431801534646}|Wegrep.Api.csproj|c:\\users\\maarten\\source\\wegrep\\src\\wegrep.api\\model\\league.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{692AE7F3-646A-E0F2-19FC-431801534646}|Wegrep.Api.csproj|solutionrelative:model\\league.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    }
+  ],
+  "DocumentGroupContainers": [
+    {
+      "Orientation": 0,
+      "VerticalTabListWidth": 256,
+      "DocumentGroups": [
+        {
+          "DockedWidth": 200,
+          "SelectedChildIndex": 8,
+          "Children": [
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "Game.cs",
+              "DocumentMoniker": "C:\\Users\\maarten\\Source\\wegrep\\src\\Wegrep.Api\\Clients\\Model\\Game.cs",
+              "RelativeDocumentMoniker": "Clients\\Model\\Game.cs",
+              "ToolTip": "C:\\Users\\maarten\\Source\\wegrep\\src\\Wegrep.Api\\Clients\\Model\\Game.cs",
+              "RelativeToolTip": "Clients\\Model\\Game.cs",
+              "ViewState": "AgIAABoAAAAAAAAAAIAwwCUAAAALAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-12-29T15:33:46.1Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
+              "Title": "GameTeam.cs",
+              "DocumentMoniker": "C:\\Users\\maarten\\Source\\wegrep\\src\\Wegrep.Api\\Model\\GameTeam.cs",
+              "RelativeDocumentMoniker": "Model\\GameTeam.cs",
+              "ToolTip": "C:\\Users\\maarten\\Source\\wegrep\\src\\Wegrep.Api\\Model\\GameTeam.cs",
+              "RelativeToolTip": "Model\\GameTeam.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAQAAAAUAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-12-29T15:17:33.486Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 5,
+              "Title": "IHockeyDataClient.cs",
+              "DocumentMoniker": "C:\\Users\\maarten\\Source\\wegrep\\src\\Wegrep.Api\\Clients\\IHockeyDataClient.cs",
+              "RelativeDocumentMoniker": "Clients\\IHockeyDataClient.cs",
+              "ToolTip": "C:\\Users\\maarten\\Source\\wegrep\\src\\Wegrep.Api\\Clients\\IHockeyDataClient.cs",
+              "RelativeToolTip": "Clients\\IHockeyDataClient.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAgAAAA1AAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-12-29T15:02:45.173Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "HockeyDataClient.cs",
+              "DocumentMoniker": "C:\\Users\\maarten\\Source\\wegrep\\src\\Wegrep.Api\\Clients\\HockeyDataClient.cs",
+              "RelativeDocumentMoniker": "Clients\\HockeyDataClient.cs",
+              "ToolTip": "C:\\Users\\maarten\\Source\\wegrep\\src\\Wegrep.Api\\Clients\\HockeyDataClient.cs",
+              "RelativeToolTip": "Clients\\HockeyDataClient.cs",
+              "ViewState": "AgIAAA4AAAAAAAAAAAAswDUAAABEAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-12-29T14:57:58.373Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 7,
+              "Title": "League.cs",
+              "DocumentMoniker": "C:\\Users\\maarten\\Source\\wegrep\\src\\Wegrep.Api\\Model\\League.cs",
+              "RelativeDocumentMoniker": "Model\\League.cs",
+              "ToolTip": "C:\\Users\\maarten\\Source\\wegrep\\src\\Wegrep.Api\\Model\\League.cs",
+              "RelativeToolTip": "Model\\League.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAbAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-12-29T14:57:11.807Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "LeagueController.cs",
+              "DocumentMoniker": "C:\\Users\\maarten\\Source\\wegrep\\src\\Wegrep.Api\\Controllers\\LeagueController.cs",
+              "RelativeDocumentMoniker": "Controllers\\LeagueController.cs",
+              "ToolTip": "C:\\Users\\maarten\\Source\\wegrep\\src\\Wegrep.Api\\Controllers\\LeagueController.cs",
+              "RelativeToolTip": "Controllers\\LeagueController.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABYAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-12-29T14:56:07.043Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 6,
+              "Title": "Wegrep.Api",
+              "DocumentMoniker": "C:\\Users\\maarten\\Source\\wegrep\\src\\Wegrep.Api\\Wegrep.Api.csproj",
+              "RelativeDocumentMoniker": "Wegrep.Api.csproj",
+              "ToolTip": "C:\\Users\\maarten\\Source\\wegrep\\src\\Wegrep.Api\\Wegrep.Api.csproj",
+              "RelativeToolTip": "Wegrep.Api.csproj",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAA4AAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000758|",
+              "WhenOpened": "2025-12-29T14:52:56.723Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "Program.cs",
+              "DocumentMoniker": "C:\\Users\\maarten\\Source\\wegrep\\src\\Wegrep.Api\\Program.cs",
+              "RelativeDocumentMoniker": "Program.cs",
+              "ToolTip": "C:\\Users\\maarten\\Source\\wegrep\\src\\Wegrep.Api\\Program.cs",
+              "RelativeToolTip": "Program.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAA0AAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-12-29T14:22:14.871Z",
+              "EditorCaption": ""
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
