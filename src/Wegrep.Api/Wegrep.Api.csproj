@@ -12,4 +12,8 @@
 	    <HintPath>..\..\dep\IHTools.dll</HintPath>
 	  </Reference>
 	</ItemGroup>
+
+	<ItemGroup>
+	  <ProjectReference Include="..\Wegrep.ServiceDefaults\Wegrep.ServiceDefaults.csproj" />
+	</ItemGroup>
 </Project>
