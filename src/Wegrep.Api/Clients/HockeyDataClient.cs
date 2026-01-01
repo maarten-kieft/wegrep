@@ -1,4 +1,5 @@
 ﻿using IHBase;
+using Microsoft.Extensions.Options;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Text.Json;
 using Wegrep.Api.Model;
@@ -9,16 +10,18 @@ namespace Wegrep.Api.Clients;
 public class HockeyDataClient : IHockeyDataClient
 {
     private HttpClient _httpClient;
+    private HockeyDataClientOptions _options;
 
-    public HockeyDataClient(HttpClient httpClient)
+    public HockeyDataClient(HttpClient httpClient, IOptions<HockeyDataClientOptions> options)
     {
         _httpClient = httpClient;
         _httpClient.BaseAddress = new Uri("https://los.hockeydata.net/los/data-asp/api/");
+        _options = options.Value;
     }
 
     public async Task<List<League>> GetLeagues()
     {
-        var request = new HttpRequestMessage(HttpMethod.Get, "GetListOfAllLeagues?customer=&password=");
+        var request = new HttpRequestMessage(HttpMethod.Get, $"GetListOfAllLeagues?customer={_options.Consumer}&password=");
         var response = await _httpClient.SendAsync(request);
         var bytes = await response.Content.ReadAsByteArrayAsync();
 
@@ -36,7 +39,7 @@ public class HockeyDataClient : IHockeyDataClient
     {
         var games = (await SendJsonAsync<List<HockeyDataModel.Game>>(
             HttpMethod.Get, 
-            "GetAllGamesOfLeagueAsJson?leagueId=343&password=&debugStatusLevel=2&selectionOption=ALL&specificDate= "
+            $"GetAllGamesOfLeagueAsJson?leagueId=343&password={_options.LeagugePassword}&debugStatusLevel=2&selectionOption=ALL&specificDate="
         )) ?? [];
 
         return games.

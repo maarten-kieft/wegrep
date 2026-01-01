@@ -5,7 +5,8 @@
 		<Nullable>enable</Nullable>
 		<ImplicitUsings>enable</ImplicitUsings>
 		<EnableUnsafeBinaryFormatterSerialization>true</EnableUnsafeBinaryFormatterSerialization>
-	</PropertyGroup>
+	  <UserSecretsId>6e84d32e-4c17-40ca-ab75-35a7e510fb8f</UserSecretsId>
+  </PropertyGroup>
 
 	<ItemGroup>
 	  <Reference Include="IHTools">
