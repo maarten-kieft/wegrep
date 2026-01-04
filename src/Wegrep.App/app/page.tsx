@@ -12,7 +12,7 @@ export default function Home() {
         <p className="text-center text-white/90 text-xl md:text-2xl max-w-2xl drop-shadow-lg">
           Professional game reporting for leagues, teams, and officials
         </p>
-        <a href="/leagues" className="mt-8 bg-primary bg-slate-900 hover:bg-slate-800 text-slate-50 font-semibold text-xl px-12 py-6 rounded-lg shadow-2xl transition-all hover:scale-105 active:scale-95">
+        <a href="/leagues" className="mt-8 bg-primary hover:bg-primary/90 text-primary-foreground font-semibold text-xl px-12 py-6 rounded-lg shadow-2xl transition-all hover:scale-105 active:scale-95">
           Start
         </a>
       </div>
