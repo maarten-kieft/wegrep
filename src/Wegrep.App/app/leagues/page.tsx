@@ -5,11 +5,25 @@ import { ChevronRight } from "lucide-react"
 import { Header } from "@/components/header"
 import { leagueService } from "@/lib/api/leagueService"
 import { Card, CardContent } from "@/components/card"
+import { useEffect, useState } from "react"
+import {League} from "@/lib/model/league"
 
-export default async function LeaguesPage() {
-  const router = useRouter()
-  let leagues = await leagueService.getLeagues();
-  
+export default function LeaguesPage() {
+  const router = useRouter();
+  const [leagues, setLeagues] = useState<League[]>([]);
+  const [isLoading, setLoading] = useState(true);
+ 
+  useEffect(
+    () => {
+      leagueService.getLeagues()
+      .then((leagues) => {
+        setLeagues(leagues);
+        setLoading(false);
+      })
+    }, 
+    []
+  )
+
   return (
     <div className="min-h-screen bg-background pb-20 overflow-x-hidden">
       <Header variant="large" />
