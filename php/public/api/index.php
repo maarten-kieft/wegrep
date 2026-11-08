@@ -63,6 +63,10 @@ function route(string $method, string $path, HockeyDataClient $client, array $co
     if ($method === 'GET' && $path === '/leagues') {
         return $client->leagues();
     }
+    if ($method === 'GET' && $path === '/logos') {
+        header('Cache-Control: public, max-age=3600');
+        return (new \Wegrep\TeamLogos($config))->dictionary();
+    }
     if ($method === 'GET' && preg_match('#^/leagues/(\d+)/games$#', $path, $m)) {
         $selection = $_GET['selection'] ?? 'ALL';
         if (!in_array($selection, ['TODAY', 'TODAY_FUTURE', 'ALL', 'TODAY_YESTERDAY', 'TODAY_2DAYSBEFORE'], true)) {

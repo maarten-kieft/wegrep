@@ -7,3 +7,6 @@
 frontend/node_modules/
 public/index.html
 public/assets/
+
+# Generated cache (club logos fetched from ijshockey.nl, rebuilt daily)
+data/logo_cache/

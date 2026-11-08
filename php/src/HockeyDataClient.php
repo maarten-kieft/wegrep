@@ -43,6 +43,7 @@ final class HockeyDataClient
         }
         return array_map(fn($g) => [
             'id' => (int) $g['GameId'],
+            'guid' => strtolower((string) ($g['GameGuid'] ?? '')),
             'name' => $g['Gamename'] ?? '',
             'division' => $g['DivisionName'] ?? '',
             'status' => (int) ($g['GameStatus'] ?? 0),

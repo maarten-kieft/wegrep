@@ -1,12 +1,14 @@
 <script setup lang="ts">
 import { Users } from 'lucide-vue-next'
-import { computed } from 'vue'
+import { computed, ref, watch } from 'vue'
 import type { Player } from '../types'
 import { card } from '../ui'
 
 // Roster comes from hockeydata; here the jersey number, position and captaincy are filled in.
 // Players without a jersey number are not on the game sheet.
-const props = defineProps<{ name: string; label: string; players: Player[] }>()
+const props = defineProps<{ name: string; label: string; players: Player[]; logo?: string | null }>()
+const broken = ref(false)
+watch(() => props.logo, () => { broken.value = false })
 
 // Fixed order (goalies, defence, forwards, others, staff) so rows don't jump while typing a number.
 const ORDER: Record<string, number> = { G: 0, D: 1, F: 2, '': 3, TO: 4 }
@@ -24,8 +26,11 @@ const duplicates = computed(() => {
 <template>
   <div :class="card">
     <div class="px-4 pt-4 pb-3 flex items-center gap-3">
-      <div class="w-10 h-10 shrink-0 rounded-full bg-primary/20 flex items-center justify-center">
-        <Users class="w-5 h-5 text-primary" />
+      <div class="w-10 h-10 shrink-0 rounded-full flex items-center justify-center overflow-hidden"
+        :class="logo && !broken ? 'bg-white ring-1 ring-border' : 'bg-primary/20'">
+        <img v-if="logo && !broken" :src="logo" alt="" loading="lazy"
+          class="w-full h-full object-contain p-1" @error="broken = true" />
+        <Users v-else class="w-5 h-5 text-primary" />
       </div>
       <div class="min-w-0">
         <h3 class="text-base font-semibold leading-tight">{{ name }}</h3>

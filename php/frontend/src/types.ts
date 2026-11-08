@@ -7,6 +7,7 @@ export interface League {
 
 export interface GameListItem {
   id: number
+  guid: string
   name: string
   division: string
   status: number
@@ -100,6 +101,14 @@ export interface Meta {
   uploadEnabled: boolean
   passwordRequired: boolean
   penaltyTypes: PenaltyType[]
+}
+
+export interface LogoDict {
+  season: string
+  byId: Record<number, string>
+  byName: Record<string, string>
+  byGuid: Record<string, { home: string; away: string }>
+  count: number
 }
 
 export interface PrecheckResult {

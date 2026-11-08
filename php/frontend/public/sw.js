@@ -1,6 +1,6 @@
 // Offline support: the app itself opens without network (pages and assets are cached).
 // API calls always go to the network; game data lives in the browser's localStorage.
-const CACHE = 'wegrep-v1'
+const CACHE = 'wegrep-v2'
 const scope = new URL(self.registration.scope)
 
 self.addEventListener('install', () => self.skipWaiting())

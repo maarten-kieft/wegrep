@@ -10,6 +10,7 @@ import PenaltyModal from '../components/PenaltyModal.vue'
 import TeamBadge from '../components/TeamBadge.vue'
 import TeamRosterEditor from '../components/TeamRosterEditor.vue'
 import UploadPanel from '../components/UploadPanel.vue'
+import { ensureLogos, logoFor } from '../logos'
 import { useGame } from '../gameStore'
 import { meta } from '../meta'
 import { formatTime } from '../time'
@@ -25,6 +26,8 @@ const report = game.report
 const back = `/leagues/${props.leagueId}/games`
 const gd = computed(() => report.value?.gamedata ?? {})
 const teamName = (s: Side) => (s === 'home' ? gd.value.teama : gd.value.teamb) ?? ''
+ensureLogos()
+const teamLogo = (s: Side) => logoFor(teamName(s), s === 'home' ? gd.value.teamaid : gd.value.teambid)
 
 const tab = ref<'goals' | 'penalties' | 'shots'>('goals')
 const goalModal = ref<{ team: Side; editing: Goal | null } | null>(null)
@@ -128,8 +131,8 @@ async function resetGame() {
 
       <div class="px-4 pt-6 pb-[calc(7rem+env(safe-area-inset-bottom))] max-w-4xl mx-auto space-y-6">
         <div class="space-y-6 lg:grid lg:grid-cols-2 lg:gap-6 lg:space-y-0">
-          <TeamRosterEditor :name="teamName('home')" label="Home Team" :players="report.players.home" />
-          <TeamRosterEditor :name="teamName('away')" label="Away Team" :players="report.players.away" />
+          <TeamRosterEditor :name="teamName('home')" label="Home Team" :logo="teamLogo('home')" :players="report.players.home" />
+          <TeamRosterEditor :name="teamName('away')" label="Away Team" :logo="teamLogo('away')" :players="report.players.away" />
         </div>
 
         <div :class="[card, 'p-4']">
@@ -164,11 +167,13 @@ async function resetGame() {
         <div :class="[card, 'mb-4 p-4']">
           <div class="flex items-center justify-between mb-4">
             <div class="text-center flex-1 min-w-0">
+              <TeamBadge :name="teamName('home')" side="home" :logo="teamLogo('home')" class="mx-auto mb-2" />
               <p class="text-sm text-muted-foreground truncate">{{ teamName('home') }}</p>
               <p class="text-3xl font-bold text-foreground">{{ game.score.value.home }}</p>
             </div>
             <div class="px-4"><span class="text-2xl font-bold text-muted-foreground">VS</span></div>
             <div class="text-center flex-1 min-w-0">
+              <TeamBadge :name="teamName('away')" side="away" :logo="teamLogo('away')" class="mx-auto mb-2" />
               <p class="text-sm text-muted-foreground truncate">{{ teamName('away') }}</p>
               <p class="text-3xl font-bold text-foreground">{{ game.score.value.away }}</p>
             </div>
@@ -323,11 +328,13 @@ async function resetGame() {
         <div :class="[card, 'p-6']">
           <div class="flex items-center justify-between mb-6">
             <div class="text-center flex-1 min-w-0">
+              <TeamBadge :name="teamName('home')" side="home" :logo="teamLogo('home')" class="mx-auto mb-2" />
               <p class="text-sm text-muted-foreground truncate">{{ teamName('home') }}</p>
               <p class="text-3xl font-bold text-foreground">{{ game.score.value.home }}</p>
             </div>
             <div class="px-4"><span class="text-2xl font-bold text-muted-foreground">-</span></div>
             <div class="text-center flex-1 min-w-0">
+              <TeamBadge :name="teamName('away')" side="away" :logo="teamLogo('away')" class="mx-auto mb-2" />
               <p class="text-sm text-muted-foreground truncate">{{ teamName('away') }}</p>
               <p class="text-3xl font-bold text-foreground">{{ game.score.value.away }}</p>
             </div>

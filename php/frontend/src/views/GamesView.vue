@@ -5,6 +5,7 @@ import { useRouter } from 'vue-router'
 import { api, ApiError } from '../api'
 import AppHeader from '../components/AppHeader.vue'
 import TeamBadge from '../components/TeamBadge.vue'
+import { ensureLogos, gameLogo } from '../logos'
 import { storage } from '../storage'
 import type { GameListItem } from '../types'
 import { btn, card } from '../ui'
@@ -25,6 +26,7 @@ const STATUS: Record<number, { label: string; cls: string }> = {
   4: { label: 'Confirmed', cls: 'bg-success/15 text-success' },
 }
 
+ensureLogos()
 const filter = ref(storage.get('filter') ?? 'TODAY_FUTURE')
 const games = ref<GameListItem[]>([])
 const loading = ref(false)
@@ -116,13 +118,13 @@ const inProgress = (id: number) => storage.get(`game:${id}`) !== null
 
               <div class="flex items-center justify-between">
                 <div class="flex-1 text-center min-w-0">
-                  <TeamBadge :name="game.home" side="home" class="mx-auto mb-2" />
+                  <TeamBadge :name="game.home" side="home" :logo="gameLogo(game.guid, 'home', game.home)" class="mx-auto mb-2" />
                   <p class="font-semibold text-foreground text-sm">{{ game.home }}</p>
                   <p class="text-xs text-muted-foreground">Home</p>
                 </div>
                 <div class="px-4"><span class="text-xl font-bold text-muted-foreground">VS</span></div>
                 <div class="flex-1 text-center min-w-0">
-                  <TeamBadge :name="game.away" side="away" class="mx-auto mb-2" />
+                  <TeamBadge :name="game.away" side="away" :logo="gameLogo(game.guid, 'away', game.away)" class="mx-auto mb-2" />
                   <p class="font-semibold text-foreground text-sm">{{ game.away }}</p>
                   <p class="text-xs text-muted-foreground">Away</p>
                 </div>

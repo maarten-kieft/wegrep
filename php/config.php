@@ -14,4 +14,10 @@ return [
     'upload_enabled' => filter_var(getenv('WEGREP_UPLOAD_ENABLED') ?: 'false', FILTER_VALIDATE_BOOLEAN),
     // Shared password for the web app. SECRET -> set WEGREP_APP_PASSWORD in .env.
     'app_password' => getenv('WEGREP_APP_PASSWORD') ?: '',
+    // Club logos are read from ijshockey.nl's public competition feeds (no secret,
+    // no login) and cached on disk. Turn off to show lettered badges only.
+    'logos_enabled' => filter_var(getenv('WEGREP_LOGOS_ENABLED') ?: 'true', FILTER_VALIDATE_BOOLEAN),
+    'logos_source' => getenv('WEGREP_LOGOS_SOURCE') ?: 'https://www.ijshockey.nl',
+    // Season as "2026-2027". Empty = derive from today (Dutch season starts in August).
+    'season' => getenv('WEGREP_SEASON') ?: '',
 ];

@@ -1,5 +1,5 @@
 import type {
-  GameListItem, GameResponse, League, Meta, PrecheckResult, ReportState, UploadResult,
+  GameListItem, GameResponse, League, LogoDict, Meta, PrecheckResult, ReportState, UploadResult,
 } from './types'
 import { storage } from './storage'
 
@@ -31,6 +31,7 @@ const post = <T>(path: string, data: unknown) =>
 export const api = {
   meta: () => request<Meta>('/meta'),
   leagues: () => request<League[]>('/leagues'),
+  logos: () => request<LogoDict>('/logos'),
   games: (leagueId: number, selection: string) =>
     request<GameListItem[]>(`/leagues/${leagueId}/games?selection=${selection}`),
   game: (gameId: number) => request<GameResponse>(`/games/${gameId}`),
