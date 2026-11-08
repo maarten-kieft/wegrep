@@ -24,7 +24,7 @@ return [
     // clubs plays are shown. Clubs are matched on team name (substring). Set the
     // list with WEGREP_CLUBS (comma-separated). Turn the whole thing off with
     // WEGREP_CLUB_FILTER=false.
-    'club_filter_enabled' => filter_var(getenv('WEGREP_CLUB_FILTER') ?: 'true', FILTER_VALIDATE_BOOLEAN),
+    'club_filter_enabled' => filter_var(getenv('WEGREP_CLUB_FILTER') ?: 'false', FILTER_VALIDATE_BOOLEAN),
     'club_filter' => array_values(array_filter(array_map(
         'trim',
         explode(',', getenv('WEGREP_CLUBS') ?: 'Blue Mountain Cougars')
