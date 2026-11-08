@@ -120,22 +120,37 @@ final class GameReport
         [$doc, $xp] = self::load($templateXml);
         $game = $doc->documentElement;
 
-        // Roster: update known players by id, leave everything else as-is.
+        // Roster. Existing players (from hockeydata) are matched by id and updated;
+        // players the user removed are deleted; players the user added (an id not in
+        // the template, e.g. for a demo game with no roster) are appended. Everything
+        // else in each <player> is left untouched.
         foreach (['home' => 'playersA', 'away' => 'playersB'] as $side => $tag) {
+            $list = $xp->query($tag, $game)->item(0) ?? $game->appendChild($doc->createElement($tag));
+            $players = $state['players'][$side] ?? [];
             $byId = [];
-            foreach ($state['players'][$side] ?? [] as $p) {
-                $byId[(string) $p['id']] = $p;
+            foreach ($players as $p) {
+                $byId[(string) ($p['id'] ?? '')] = $p;
             }
-            foreach ($xp->query("$tag/player", $game) as $el) {
-                $p = $byId[self::text($xp, $el, 'id')] ?? null;
+            // Update the players still present; remove the ones the user deleted.
+            // (iterator_to_array so we can remove nodes while looping.)
+            $seen = [];
+            foreach (iterator_to_array($xp->query("$tag/player", $game)) as $el) {
+                $id = self::text($xp, $el, 'id');
+                $p = $byId[$id] ?? null;
                 if ($p === null) {
+                    $el->parentNode->removeChild($el);
                     continue;
                 }
-                self::set($doc, $xp, $el, 'jerseynr', (string) ($p['jersey'] ?? ''));
-                self::set($doc, $xp, $el, 'captain', (string) ($p['captain'] ?? ''));
-                self::set($doc, $xp, $el, 'position', (string) ($p['position'] ?? ''));
-                self::set($doc, $xp, $el, 'line', (string) ($p['line'] ?? ''));
-                self::set($doc, $xp, $el, 'startingsix', !empty($p['starting']) ? 'Y' : '');
+                self::applyPlayer($doc, $xp, $el, $p);
+                $seen[$id] = true;
+            }
+            // Append players the template didn't have (manually added).
+            foreach ($players as $p) {
+                if (isset($seen[(string) ($p['id'] ?? '')])) {
+                    continue;
+                }
+                $el = $list->appendChild($doc->createElement('player'));
+                self::add($doc, $el, self::newPlayerFields($p));
             }
         }
 
@@ -288,6 +303,42 @@ final class GameReport
         foreach ($fields as $tag => $value) {
             $parent->appendChild($doc->createElement($tag))->textContent = $value;
         }
+    }
+
+    /** Update an existing <player> from the edited roster (name, number, position, …). */
+    private static function applyPlayer(DOMDocument $doc, DOMXPath $xp, DOMElement $el, array $p): void
+    {
+        self::set($doc, $xp, $el, 'jerseynr', (string) ($p['jersey'] ?? ''));
+        self::set($doc, $xp, $el, 'name1', (string) ($p['lastname'] ?? ''));
+        self::set($doc, $xp, $el, 'name2', (string) ($p['firstname'] ?? ''));
+        self::set($doc, $xp, $el, 'licensenr', (string) ($p['licensenr'] ?? ''));
+        self::set($doc, $xp, $el, 'birthdate', (string) ($p['birthdate'] ?? ''));
+        self::set($doc, $xp, $el, 'captain', (string) ($p['captain'] ?? ''));
+        self::set($doc, $xp, $el, 'position', (string) ($p['position'] ?? ''));
+        self::set($doc, $xp, $el, 'line', (string) ($p['line'] ?? ''));
+        self::set($doc, $xp, $el, 'startingsix', !empty($p['starting']) ? 'Y' : '');
+    }
+
+    /** The full <player> field set hockeydata uses, for a manually added player. */
+    private static function newPlayerFields(array $p): array
+    {
+        return [
+            'jerseynr' => (string) ($p['jersey'] ?? ''),
+            'name1' => (string) ($p['lastname'] ?? ''),
+            'name2' => (string) ($p['firstname'] ?? ''),
+            'name3' => '',
+            'captain' => (string) ($p['captain'] ?? ''),
+            'position' => (string) ($p['position'] ?? ''),
+            'line' => (string) ($p['line'] ?? ''),
+            'sog' => '0',
+            'birthdate' => (string) ($p['birthdate'] ?? ''),
+            'extra1' => '',
+            'extra2' => '',
+            'licensenr' => (string) ($p['licensenr'] ?? ''),
+            'altjerseynr' => '0',
+            'id' => (string) ($p['id'] ?? ''),
+            'startingsix' => !empty($p['starting']) ? 'Y' : '',
+        ];
     }
 
     public static function secToMmss(int $sec): string

@@ -1,11 +1,12 @@
 <script setup lang="ts">
-import { Users } from 'lucide-vue-next'
+import { Plus, Trash2, Users } from 'lucide-vue-next'
 import { computed, ref, watch } from 'vue'
 import type { Player } from '../types'
-import { card } from '../ui'
+import { btn, card } from '../ui'
 
-// Roster comes from hockeydata; here the jersey number, position and captaincy are filled in.
-// Players without a jersey number are not on the game sheet.
+// The roster comes from hockeydata; here the jersey number, position, captaincy and
+// names are filled in. Players can also be added (e.g. a demo game with no roster)
+// or removed. Players without a jersey number are not on the game sheet.
 const props = defineProps<{ name: string; label: string; players: Player[]; logo?: string | null }>()
 const broken = ref(false)
 watch(() => props.logo, () => { broken.value = false })
@@ -21,6 +22,18 @@ const duplicates = computed(() => {
   for (const p of props.players) if (p.jersey.trim()) count.set(p.jersey.trim(), (count.get(p.jersey.trim()) ?? 0) + 1)
   return new Set([...count].filter(([, n]) => n > 1).map(([j]) => j))
 })
+
+function addPlayer() {
+  props.players.push({
+    id: `new-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 7)}`,
+    jersey: '', lastname: '', firstname: '', licensenr: '', birthdate: '',
+    captain: '', position: '', line: '', starting: false,
+  })
+}
+function removePlayer(p: Player) {
+  const i = props.players.indexOf(p)
+  if (i !== -1) props.players.splice(i, 1)
+}
 </script>
 
 <template>
@@ -40,24 +53,37 @@ const duplicates = computed(() => {
     </div>
 
     <div class="px-4 pb-4 space-y-2">
-      <p v-if="!players.length" class="py-4 text-center text-muted-foreground text-sm">No roster received from hockeydata</p>
-      <div v-for="p in sorted" :key="p.id" class="flex items-center gap-2" :class="{ 'opacity-60': !p.jersey.trim() }">
+      <p v-if="!players.length" class="py-3 text-center text-muted-foreground text-sm">
+        No roster received from hockeydata — add players below.
+      </p>
+      <div v-for="p in sorted" :key="p.id" class="flex flex-wrap items-center gap-2" :class="{ 'opacity-60': !p.jersey.trim() }">
         <input v-model.trim="p.jersey" inputmode="numeric" maxlength="3" placeholder="#"
-          class="w-14 h-10 rounded-md border bg-input text-foreground text-center font-semibold outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50"
+          class="w-12 h-10 rounded-md border bg-input text-foreground text-center font-semibold outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50"
           :class="duplicates.has(p.jersey) ? 'border-destructive' : 'border-border'" />
-        <div class="flex-1 min-w-0">
-          <p class="text-sm font-medium truncate">{{ p.lastname }} {{ p.firstname }}</p>
-          <p class="text-xs text-muted-foreground truncate">{{ p.position === 'TO' ? 'Team official' : p.licensenr }}</p>
+        <div class="flex-1 min-w-[9rem] flex gap-1">
+          <input v-model.trim="p.lastname" placeholder="Last name"
+            class="w-0 flex-1 h-10 rounded-md border border-border bg-input text-foreground text-sm px-2 outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50" />
+          <input v-model.trim="p.firstname" placeholder="First name"
+            class="w-0 flex-1 h-10 rounded-md border border-border bg-input text-foreground text-sm px-2 outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50" />
         </div>
         <template v-if="p.position !== 'TO'">
-          <select v-model="p.position" class="h-10 w-14 rounded-md border border-border bg-input text-sm text-center">
+          <select v-model="p.position" aria-label="Position" class="h-10 w-12 rounded-md border border-border bg-input text-sm text-center">
             <option value="">–</option><option value="G">G</option><option value="D">D</option><option value="F">F</option>
           </select>
-          <select v-model="p.captain" class="h-10 w-14 rounded-md border border-border bg-input text-sm text-center">
+          <select v-model="p.captain" aria-label="Captain" class="h-10 w-12 rounded-md border border-border bg-input text-sm text-center">
             <option value="">–</option><option value="C">C</option><option value="A">A</option>
           </select>
         </template>
+        <span v-else class="text-xs text-muted-foreground px-1 self-center">Official</span>
+        <button type="button" :class="btn('ghost', 'icon', 'text-destructive shrink-0')" aria-label="Remove player" @click="removePlayer(p)">
+          <Trash2 class="w-4 h-4" />
+        </button>
       </div>
+
+      <button type="button" :class="btn('outline', 'sm', 'w-full mt-1 bg-transparent')" @click="addPlayer">
+        <Plus class="w-4 h-4" /> Add player
+      </button>
+
       <p v-if="duplicates.size" class="text-sm text-destructive pt-1">Duplicate jersey number: {{ [...duplicates].join(', ') }}</p>
     </div>
   </div>
