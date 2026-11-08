@@ -20,4 +20,13 @@ return [
     'logos_source' => getenv('WEGREP_LOGOS_SOURCE') ?: 'https://www.ijshockey.nl',
     // Season as "2026-2027". Empty = derive from today (Dutch season starts in August).
     'season' => getenv('WEGREP_SEASON') ?: '',
+    // Club focus. When on, only the leagues and games where one of the configured
+    // clubs plays are shown. Clubs are matched on team name (substring). Set the
+    // list with WEGREP_CLUBS (comma-separated). Turn the whole thing off with
+    // WEGREP_CLUB_FILTER=false.
+    'club_filter_enabled' => filter_var(getenv('WEGREP_CLUB_FILTER') ?: 'true', FILTER_VALIDATE_BOOLEAN),
+    'club_filter' => array_values(array_filter(array_map(
+        'trim',
+        explode(',', getenv('WEGREP_CLUBS') ?: 'Blue Mountain Cougars')
+    ), fn($c) => $c !== '')),
 ];

@@ -24,6 +24,9 @@ namespace Wegrep;
  */
 final class TeamLogos
 {
+    // Bump when the cached dictionary shape changes, so old caches are ignored.
+    private const VERSION = 2;
+
     public function __construct(private array $config)
     {
     }
@@ -49,8 +52,21 @@ final class TeamLogos
             error_log('TeamLogos build failed: ' . $e->getMessage());
             $dict = $this->empty();
         }
-        $this->writeCache($pathSeason, $dict);
+        // Only cache a real result; a transient failure should be retried, not frozen.
+        if (($dict['count'] ?? 0) > 0) {
+            $this->writeCache($pathSeason, $dict);
+        }
         return $dict;
+    }
+
+    /** The dictionary only if it is already cached (never builds). Null when cold. */
+    public function cachedDictionary(): ?array
+    {
+        if (!($this->config['logos_enabled'] ?? true)) {
+            return null;
+        }
+        [$pathSeason] = $this->season();
+        return $this->readCache($pathSeason);
     }
 
     /** The logo url for a team, by hockeydata id first, then by name. */
@@ -128,6 +144,7 @@ final class TeamLogos
             $compIds
         );
         $byGuid = [];
+        $schedule = [];
         foreach ($this->fetchMany($schedUrls) as $body) {
             $data = json_decode((string) $body, true);
             foreach ($data['wedstrijden'] ?? [] as $w) {
@@ -140,14 +157,23 @@ final class TeamLogos
                 if ($home !== '' || $away !== '') {
                     $byGuid[$guid] = ['home' => $home, 'away' => $away];
                 }
+                // Real team names + hockeydata league id, for the club filter
+                // (hockeydata sometimes shows a code like "HOO-5" instead of the name).
+                $schedule[$guid] = [
+                    'home' => (string) ($w['thuis']['naam'] ?? ''),
+                    'away' => (string) ($w['uit']['naam'] ?? ''),
+                    'league' => (int) ($w['competitie']['leagueId'] ?? 0),
+                ];
             }
         }
 
         return [
+            'v' => self::VERSION,
             'season' => $pathSeason,
             'byId' => $byId,
             'byName' => $byName,
             'byGuid' => $byGuid,
+            'schedule' => $schedule,
             'count' => count($byId),
         ];
     }
@@ -190,10 +216,11 @@ final class TeamLogos
             return null;
         }
         $data = json_decode((string) @file_get_contents($file), true);
-        if (!is_array($data) || !isset($data['byId'], $data['byName'])) {
-            return null;
+        if (!is_array($data) || ($data['v'] ?? 0) !== self::VERSION) {
+            return null; // absent or an older shape: rebuild
         }
         $data['byGuid'] ??= [];
+        $data['schedule'] ??= [];
         return $data;
     }
 
@@ -207,7 +234,7 @@ final class TeamLogos
     private function empty(): array
     {
         [$pathSeason] = $this->season();
-        return ['season' => $pathSeason, 'byId' => [], 'byName' => [], 'byGuid' => [], 'count' => 0];
+        return ['season' => $pathSeason, 'byId' => [], 'byName' => [], 'byGuid' => [], 'schedule' => [], 'count' => 0];
     }
 
     private static function normalize(string $name): string

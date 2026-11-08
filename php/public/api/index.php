@@ -61,18 +61,30 @@ function route(string $method, string $path, HockeyDataClient $client, array $co
         ];
     }
     if ($method === 'GET' && $path === '/leagues') {
-        return $client->leagues();
+        $filter = new \Wegrep\ClubFilter($config);
+        // Use the cached schedule only (never block the landing page on a crawl);
+        // when it isn't warm yet the filter fails open and shows all leagues.
+        $schedule = $filter->enabled() ? ((new \Wegrep\TeamLogos($config))->cachedDictionary()['schedule'] ?? null) : null;
+        return $filter->filterLeagues($client->leagues(), $schedule);
     }
     if ($method === 'GET' && $path === '/logos') {
         header('Cache-Control: public, max-age=3600');
-        return (new \Wegrep\TeamLogos($config))->dictionary();
+        $dict = (new \Wegrep\TeamLogos($config))->dictionary();
+        unset($dict['schedule']); // server-only (club filter); not needed by the app
+        return $dict;
     }
     if ($method === 'GET' && preg_match('#^/leagues/(\d+)/games$#', $path, $m)) {
         $selection = $_GET['selection'] ?? 'ALL';
         if (!in_array($selection, ['TODAY', 'TODAY_FUTURE', 'ALL', 'TODAY_YESTERDAY', 'TODAY_2DAYSBEFORE'], true)) {
             throw new ApiException('Onbekende selectie');
         }
-        return $client->games((int) $m[1], $selection);
+        $games = $client->games((int) $m[1], $selection);
+        $filter = new \Wegrep\ClubFilter($config);
+        if ($filter->enabled()) {
+            $schedule = (new \Wegrep\TeamLogos($config))->dictionary()['schedule'] ?? [];
+            $games = $filter->filterGames($games, $schedule);
+        }
+        return $games;
     }
     if (preg_match('#^/games/(\d+)(?:/(\w+))?$#', $path, $m)) {
         $gameId = (int) $m[1];

@@ -5,7 +5,11 @@ import HomeView from './views/HomeView.vue'
 import LeaguesView from './views/LeaguesView.vue'
 import GamesView from './views/GamesView.vue'
 import GameView from './views/GameView.vue'
+import { ensureLogos } from './logos'
 import './style.css'
+
+// Warm the logo/schedule cache at startup so club filtering and logos are ready.
+ensureLogos()
 
 // Same routes as the Next.js app.
 const router = createRouter({
