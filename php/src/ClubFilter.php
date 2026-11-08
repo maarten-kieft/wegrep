@@ -18,6 +18,8 @@ final class ClubFilter
     /** @var list<string> lowercased club name fragments */
     private array $clubs;
     private bool $enabled;
+    /** @var list<int> league ids kept even while filtering (the demo league) */
+    private array $demoLeagues;
 
     public function __construct(array $config)
     {
@@ -26,11 +28,20 @@ final class ClubFilter
             $config['club_filter'] ?? []
         )));
         $this->enabled = (bool) ($config['club_filter_enabled'] ?? false) && $this->clubs !== [];
+        $this->demoLeagues = ($config['demo_league_enabled'] ?? false)
+            ? array_values(array_map('intval', $config['demo_leagues'] ?? []))
+            : [];
     }
 
     public function enabled(): bool
     {
         return $this->enabled;
+    }
+
+    /** True for a league that should stay visible despite the club filter. */
+    public function isDemoLeague(int $leagueId): bool
+    {
+        return in_array($leagueId, $this->demoLeagues, true);
     }
 
     public function matches(string $teamName): bool
@@ -60,6 +71,9 @@ final class ClubFilter
             return $leagues;
         }
         $allowed = [];
+        foreach ($this->demoLeagues as $id) {
+            $allowed[$id] = true; // always keep the demo league when it is turned on
+        }
         foreach ($schedule as $g) {
             if ($this->matches((string) ($g['home'] ?? '')) || $this->matches((string) ($g['away'] ?? ''))) {
                 $allowed[(int) ($g['league'] ?? 0)] = true;
@@ -78,10 +92,10 @@ final class ClubFilter
      * @param list<array<string,mixed>> $games
      * @param array<string,array{home:string,away:string,league:int}> $schedule
      */
-    public function filterGames(array $games, array $schedule): array
+    public function filterGames(array $games, array $schedule, int $leagueId = 0): array
     {
-        if (!$this->enabled) {
-            return $games;
+        if (!$this->enabled || $this->isDemoLeague($leagueId)) {
+            return $games; // demo league: show every (dummy) game
         }
         return array_values(array_filter($games, function ($g) use ($schedule) {
             $s = $schedule[(string) ($g['guid'] ?? '')] ?? null;

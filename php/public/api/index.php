@@ -78,11 +78,12 @@ function route(string $method, string $path, HockeyDataClient $client, array $co
         if (!in_array($selection, ['TODAY', 'TODAY_FUTURE', 'ALL', 'TODAY_YESTERDAY', 'TODAY_2DAYSBEFORE'], true)) {
             throw new ApiException('Onbekende selectie');
         }
-        $games = $client->games((int) $m[1], $selection);
+        $leagueId = (int) $m[1];
+        $games = $client->games($leagueId, $selection);
         $filter = new \Wegrep\ClubFilter($config);
-        if ($filter->enabled()) {
+        if ($filter->enabled() && !$filter->isDemoLeague($leagueId)) {
             $schedule = (new \Wegrep\TeamLogos($config))->dictionary()['schedule'] ?? [];
-            $games = $filter->filterGames($games, $schedule);
+            $games = $filter->filterGames($games, $schedule, $leagueId);
         }
         return $games;
     }

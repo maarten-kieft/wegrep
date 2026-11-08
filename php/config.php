@@ -29,4 +29,14 @@ return [
         'trim',
         explode(',', getenv('WEGREP_CLUBS') ?: 'Blue Mountain Cougars')
     ), fn($c) => $c !== '')),
+    // Demo league. hockeydata has a test league ("IJSHOCKEY NEDERLAND DEMO",
+    // id 320) with dummy games, handy for trying the report flow. The club filter
+    // normally hides it. Turn this on to keep the demo league (and all its games)
+    // visible even while the club filter is active. Only has effect when the club
+    // filter is on. Set the id(s) with WEGREP_DEMO_LEAGUES (comma-separated).
+    'demo_league_enabled' => filter_var(getenv('WEGREP_DEMO_LEAGUE') ?: 'false', FILTER_VALIDATE_BOOLEAN),
+    'demo_leagues' => array_values(array_filter(array_map(
+        'intval',
+        explode(',', getenv('WEGREP_DEMO_LEAGUES') ?: '320')
+    ), fn($id) => $id > 0)),
 ];
