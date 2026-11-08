@@ -1,0 +1,19 @@
+# Local development: PHP + Apache on http://localhost:8080
+# Frontend dev server (hot reload): cd frontend && npm run dev  -> http://localhost:5173
+services:
+  web:
+    image: php:8.3-apache
+    ports:
+      - "8080:80"
+    volumes:
+      - ./:/var/www/app
+    environment:
+      APACHE_DOCUMENT_ROOT: /var/www/app/public
+    env_file:
+      - path: .env
+        required: false
+    command: >
+      bash -c "a2enmod rewrite >/dev/null &&
+      sed -ri 's!/var/www/html!/var/www/app/public!g' /etc/apache2/sites-available/*.conf /etc/apache2/apache2.conf &&
+      sed -ri 's!AllowOverride None!AllowOverride All!g' /etc/apache2/apache2.conf &&
+      apache2-foreground"

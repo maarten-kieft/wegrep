@@ -1,0 +1,402 @@
+[
+ {
+  "code": "ABUSE",
+  "en": "Abuse of Officials",
+  "de": "Beleidigung von Spiel-Offiziellen"
+ },
+ {
+  "code": "ADJ-E",
+  "en": "Adjustment of Equipment",
+  "de": "Anpassung der Ausrüstung"
+ },
+ {
+  "code": "ALTRC",
+  "en": "Altercation",
+  "de": "Auseinandersetzung"
+ },
+ {
+  "code": "ATT-I",
+  "en": "Attempt to injure",
+  "de": "Versuch zu verletzen"
+ },
+ {
+  "code": "ATT-K",
+  "en": "Attempt to kick",
+  "de": "Versuch zu treten"
+ },
+ {
+  "code": "BENCH",
+  "en": "Bench minor",
+  "de": "Bankstrafe"
+ },
+ {
+  "code": "BITING",
+  "en": "Biting",
+  "de": "Beißen"
+ },
+ {
+  "code": "BOARD",
+  "en": "Boarding",
+  "de": "Bandencheck"
+ },
+ {
+  "code": "BR-ST",
+  "en": "Broken stick",
+  "de": "Zerbrochener Schläger"
+ },
+ {
+  "code": "BUT-E",
+  "en": "Butt-ending",
+  "de": "Stockendenstich"
+ },
+ {
+  "code": "ATTUDE",
+  "en": "Captain and alternate captain complaint",
+  "de": "Beschwerde von Kapitän oder A.Kapitän"
+ },
+ {
+  "code": "CHARG",
+  "en": "Charging",
+  "de": "Unerlaubter Körperangriff"
+ },
+ {
+  "code": "CHE-B",
+  "en": "Checking from behind",
+  "de": "Check von hinten"
+ },
+ {
+  "code": "CHE-H",
+  "en": "Checking to the head and neck",
+  "de": "Check gegen den Kopf und Nacken"
+ },
+ {
+  "code": "CLIP",
+  "en": "Clipping",
+  "de": "Check gegen das Knie"
+ },
+ {
+  "code": "CRITIC",
+  "en": "Criticism",
+  "de": "Kritik am Entscheid"
+ },
+ {
+  "code": "CROSS",
+  "en": "Cross-checking",
+  "de": "Cross-check (Stockcheck)"
+ },
+ {
+  "code": "DAN-E",
+  "en": "Dangerous Equipment",
+  "de": "Gefährliche Ausrüstung"
+ },
+ {
+  "code": "DELAY",
+  "en": "Delaying the game",
+  "de": "Spielverzögerung"
+ },
+ {
+  "code": "DIVE",
+  "en": "Diving",
+  "de": "Schwalbe"
+ },
+ {
+  "code": "ELBOW",
+  "en": "Elbowing",
+  "de": "Ellbogencheck"
+ },
+ {
+  "code": "EXC-RP",
+  "en": "Excessive Rough Play",
+  "de": "Exzessiv hartes Spiel"
+ },
+ {
+  "code": "EX-RP",
+  "en": "Excessive Roughness",
+  "de": "Exzessive Härte"
+ },
+ {
+  "code": "F-OFF",
+  "en": "Face off",
+  "de": "Face off"
+ },
+ {
+  "code": "FAL-P",
+  "en": "Falling on the puck",
+  "de": "Fallen auf den Puck"
+ },
+ {
+  "code": "FIGHT",
+  "en": "Fighting",
+  "de": "Kämpfen"
+ },
+ {
+  "code": "FISTI",
+  "en": "Fisticuffs",
+  "de": "Faustschläge"
+ },
+ {
+  "code": "GA-MI",
+  "en": "Game misconduct penalty(20')",
+  "de": "Spieldauer-Disziplinarstrafe(20')"
+ },
+ {
+  "code": "DIS-N",
+  "en": "Goal being deliberately dislodged",
+  "de": "Absichtliches Torverschieben"
+ },
+ {
+  "code": "GK-PEN",
+  "en": "Goalkeeper penalties",
+  "de": "Torhüterstrafe"
+ },
+ {
+  "code": "GR-MI",
+  "en": "Gross Misconduct",
+  "de": "Grobes Fehlverhalten"
+ },
+ {
+  "code": "HAND-P",
+  "en": "Handling the puck with the Hands",
+  "de": "Handpass"
+ },
+ {
+  "code": "HANDP",
+  "en": "Handpassing the puck",
+  "de": "Handpassen des Pucks"
+ },
+ {
+  "code": "H-BUT",
+  "en": "Head butting",
+  "de": "Kopfstoß"
+ },
+ {
+  "code": "HI-ST",
+  "en": "High sticking",
+  "de": "Hoher Stock"
+ },
+ {
+  "code": "HOLD",
+  "en": "Holding",
+  "de": "Halten"
+ },
+ {
+  "code": "HO-MA",
+  "en": "Holding the mask",
+  "de": "Halten der Maske"
+ },
+ {
+  "code": "HO-ST",
+  "en": "Holding the stick",
+  "de": "Halten des Stockes"
+ },
+ {
+  "code": "HOOK",
+  "en": "Hooking",
+  "de": "Haken"
+ },
+ {
+  "code": "IL-EQ",
+  "en": "Illegal Equipment",
+  "de": "Illegale Ausrüstung"
+ },
+ {
+  "code": "EQ-INF",
+  "en": "Illegal or dangerous equipment",
+  "de": "Unerlaubte Ausrüstung"
+ },
+ {
+  "code": "IL-ST",
+  "en": "Illegal Stick",
+  "de": "Illegaler Schläger"
+ },
+ {
+  "code": "CH-PL",
+  "en": "Incorrect change of players",
+  "de": "Unkorrekter Spielerwechsel"
+ },
+ {
+  "code": "INTRF",
+  "en": "Interference",
+  "de": "Behinderung"
+ },
+ {
+  "code": "INT-S",
+  "en": "Interference with spectators",
+  "de": "Vorfall mit Zusehern"
+ },
+ {
+  "code": "KICK",
+  "en": "Kicking",
+  "de": "Treten"
+ },
+ {
+  "code": "KNEE",
+  "en": "Kneeing",
+  "de": "Check mit dem Knie"
+ },
+ {
+  "code": "LA-HI",
+  "en": "Late hit",
+  "de": "Late hit"
+ },
+ {
+  "code": "L-PEB",
+  "en": "Leaving penalty bench",
+  "de": "Verlassen der Strafbank"
+ },
+ {
+  "code": "L-PLB",
+  "en": "Leaving players bench",
+  "de": "Verlassen der Spielerbank"
+ },
+ {
+  "code": "L-BCH",
+  "en": "Leaving the penalty bench",
+  "de": "Spielerbank verlassen"
+ },
+ {
+  "code": "MATCH",
+  "en": "Match penalty(25')",
+  "de": "Matchstrafe(25')"
+ },
+ {
+  "code": "AD-EQ",
+  "en": "Measurement of equipment",
+  "de": "Vermessung der Ausrüstung"
+ },
+ {
+  "code": "MISC",
+  "en": "Misconduct penalty(10')",
+  "de": "Disziplinarstrafe(10')"
+ },
+ {
+  "code": "MOL",
+  "en": "Molesting Officials",
+  "de": "Belästigung Offizieller"
+ },
+ {
+  "code": "OBS-L",
+  "en": "Obscene Language",
+  "de": "Obszöne Sprache"
+ },
+ {
+  "code": "PEN-S",
+  "en": "Penalty shot",
+  "de": "Penaltyschuss"
+ },
+ {
+  "code": "BLOOD",
+  "en": "Prevention of infections by blood",
+  "de": "Verhinderung von Infektionen aufgrund Blut"
+ },
+ {
+  "code": "P-FRE",
+  "en": "Puck freezing",
+  "de": "Blockieren des Pucks"
+ },
+ {
+  "code": "P-HOL",
+  "en": "Puck holding",
+  "de": "Halten des Pucks"
+ },
+ {
+  "code": "P-OUT",
+  "en": "Puck out of the unplayable",
+  "de": "Puck out of the unplayable"
+ },
+ {
+  "code": "OTHER",
+  "en": "Reason not specified / other",
+  "de": "Sonstiges"
+ },
+ {
+  "code": "REFUS",
+  "en": "Refusing to Start Play",
+  "de": "Weigerung das Spiel zu beginnen"
+ },
+ {
+  "code": "REFUSE",
+  "en": "Refusing to start play/Team not on ice",
+  "de": "Weigerung das Spiel zu beginnen/Team nicht am Eis"
+ },
+ {
+  "code": "ROUGH",
+  "en": "Roughing",
+  "de": "Übertriebene Härte"
+ },
+ {
+  "code": "SLASH",
+  "en": "Slashing",
+  "de": "Stockschlag"
+ },
+ {
+  "code": "SLEW-F",
+  "en": "Slew footing",
+  "de": "Wegziehen der Füße"
+ },
+ {
+  "code": "SPEAR",
+  "en": "Spearing",
+  "de": "Stockstich"
+ },
+ {
+  "code": "STA-L",
+  "en": "Starting line up",
+  "de": "Startaufstellung"
+ },
+ {
+  "code": "TAUNTING",
+  "en": "Taunting",
+  "de": "Verhöhnen"
+ },
+ {
+  "code": "T-BCH",
+  "en": "Team officials leaving the players bench",
+  "de": "Teamoffizieller verlässt die Spielerbank"
+ },
+ {
+  "code": "TEAM",
+  "en": "Teampenalty",
+  "de": "Strafe gegen die Mannschaft"
+ },
+ {
+  "code": "THR-S",
+  "en": "Throwing a stick",
+  "de": "Werfen des Stocks"
+ },
+ {
+  "code": "THR-P",
+  "en": "Throwing the puck",
+  "de": "Werfen des Pucks"
+ },
+ {
+  "code": "THR-ST",
+  "en": "Throwing the stick or any other object",
+  "de": "Werfen des Stockes/andere Gegenstände"
+ },
+ {
+  "code": "TOO-M",
+  "en": "Too many players on the ice",
+  "de": "Wechselfehler/Zu viele Spieler am Eis"
+ },
+ {
+  "code": "TRIP",
+  "en": "Tripping",
+  "de": "Beinstellen"
+ },
+ {
+  "code": "UN-SP",
+  "en": "Unsportsmanlike conduct",
+  "de": "Unsportliches Verhalten"
+ },
+ {
+  "code": "UNSP-O",
+  "en": "Unsportsmanlike conduct by official",
+  "de": "Vergehen Offizieller"
+ },
+ {
+  "code": "BD-CK",
+  "en": "Women Body Checking",
+  "de": "Bodycheck (nur Damen)"
+ }
+]
