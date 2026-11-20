@@ -1,5 +1,0 @@
-<Solution>
-  <Project Path="Wegrep.AppHost/Wegrep.AppHost.csproj" />
-  <Project Path="Wegrep.ServiceDefaults/Wegrep.ServiceDefaults.csproj" />
-  <Project Path="Wegrep.Api/Wegrep.Api.csproj" />
-</Solution>

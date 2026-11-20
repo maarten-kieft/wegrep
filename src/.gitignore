@@ -1,0 +1,13 @@
+# Secrets live here, never committed
+.env
+.env.*
+!.env.example
+
+# Build output and deps (rebuilt from frontend/; only api/ and .htaccess in backend/public are source)
+frontend/node_modules/
+backend/public/*
+!backend/public/api/
+!backend/public/.htaccess
+
+# Generated cache (club logos fetched from ijshockey.nl, rebuilt daily)
+backend/data/logo_cache/
