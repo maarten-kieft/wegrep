@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace Wegrep;
+namespace Wegrep\Clubs;
 
 /**
  * Club logos for the game sheet.
@@ -22,7 +22,7 @@ namespace Wegrep;
  * day. It is best-effort: if ijshockey.nl is unreachable the dictionary is simply
  * empty and the app shows the lettered badges instead. No secrets, no auth.
  */
-final class TeamLogos
+final class IjshockeyFeed
 {
     // Bump when the cached dictionary shape changes, so old caches are ignored.
     private const VERSION = 2;
@@ -49,7 +49,7 @@ final class TeamLogos
         try {
             $dict = $this->build();
         } catch (\Throwable $e) {
-            error_log('TeamLogos build failed: ' . $e->getMessage());
+            error_log('IjshockeyFeed build failed: ' . $e->getMessage());
             $dict = $this->empty();
         }
         // Only cache a real result; a transient failure should be retried, not frozen.
@@ -198,7 +198,7 @@ final class TeamLogos
 
     private function cacheFile(string $pathSeason): string
     {
-        $dir = ($this->config['logos_cache_dir'] ?? '') ?: (\dirname(__DIR__) . '/data/logo_cache');
+        $dir = ($this->config['logos_cache_dir'] ?? '') ?: (\dirname(__DIR__, 2) . '/data/logo_cache');
         if (!is_dir($dir)) {
             @mkdir($dir, 0775, true);
         }

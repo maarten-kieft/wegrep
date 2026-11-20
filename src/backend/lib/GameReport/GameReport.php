@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace Wegrep;
+namespace Wegrep\GameReport;
 
 use DOMDocument;
 use DOMElement;

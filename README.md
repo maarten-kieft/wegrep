@@ -69,8 +69,11 @@ npm run typecheck
 src/
   backend/             PHP, this folder is what gets deployed
     public/            document root: api/index.php (route table for /api), .htaccess; the built SPA lands here
-    lib/               PHP classes (namespace Wegrep\): hockeydata client, NRBF reader, [HD] crypto, game report XML
-      Controllers/     the /api endpoints (Meta, League, Game)
+    lib/               PHP classes, namespace Wegrep\<folder>
+      Http/            Router, ApiException and Controllers/ (the /api endpoints: Meta, League, Game)
+      HockeyData/      hockeydata LOS6 client and the reader for its .NET BinaryFormatter answers
+      GameReport/      EGREP game report XML and the [HD] encryption around it
+      Clubs/           ijshockey.nl feed (logos + schedule) and the club filter
     data/              penalty codes, and the club logo cache (logo_cache/, gitignored)
     config.php         settings without secrets
   frontend/            Vue source: views/, components/, gameStore.ts (game state), api.ts (calls to /api)

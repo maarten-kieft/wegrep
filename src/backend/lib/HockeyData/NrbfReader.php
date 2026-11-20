@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace Wegrep;
+namespace Wegrep\HockeyData;
 
 /**
  * Minimal reader for the .NET BinaryFormatter format (MS-NRBF).

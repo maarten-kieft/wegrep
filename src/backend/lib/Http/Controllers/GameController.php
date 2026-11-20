@@ -1,12 +1,12 @@
 <?php
 declare(strict_types=1);
 
-namespace Wegrep\Controllers;
+namespace Wegrep\Http\Controllers;
 
-use Wegrep\ApiException;
-use Wegrep\GameReport;
-use Wegrep\HdCrypt;
-use Wegrep\HockeyDataClient;
+use Wegrep\Http\ApiException;
+use Wegrep\GameReport\GameReport;
+use Wegrep\GameReport\HdCrypt;
+use Wegrep\HockeyData\HockeyDataClient;
 
 final class GameController
 {

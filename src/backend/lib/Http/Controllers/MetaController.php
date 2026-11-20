@@ -1,9 +1,9 @@
 <?php
 declare(strict_types=1);
 
-namespace Wegrep\Controllers;
+namespace Wegrep\Http\Controllers;
 
-use Wegrep\TeamLogos;
+use Wegrep\Clubs\IjshockeyFeed;
 
 final class MetaController
 {
@@ -25,7 +25,7 @@ final class MetaController
     public function logos(): array
     {
         header('Cache-Control: public, max-age=3600');
-        $dict = (new TeamLogos($this->config))->dictionary();
+        $dict = (new IjshockeyFeed($this->config))->dictionary();
         unset($dict['schedule']); // server-only (club filter); not needed by the app
         return $dict;
     }

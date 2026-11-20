@@ -3,28 +3,28 @@ declare(strict_types=1);
 
 /**
  * JSON API for the web app. All requests under /api end up here (see .htaccess);
- * the routes below map them to the controllers in lib/Controllers.
+ * the routes below map them to the controllers in lib/Http/Controllers.
  */
 
-use Wegrep\ApiException;
-use Wegrep\Controllers\GameController;
-use Wegrep\Controllers\LeagueController;
-use Wegrep\Controllers\MetaController;
-use Wegrep\HockeyDataClient;
-use Wegrep\Router;
+use Wegrep\HockeyData\HockeyDataClient;
+use Wegrep\Http\ApiException;
+use Wegrep\Http\Controllers\GameController;
+use Wegrep\Http\Controllers\LeagueController;
+use Wegrep\Http\Controllers\MetaController;
+use Wegrep\Http\Router;
 
 $root = dirname(__DIR__, 2);
-require $root . '/lib/ApiException.php';
-require $root . '/lib/ClubFilter.php';
-require $root . '/lib/GameReport.php';
-require $root . '/lib/HdCrypt.php';
-require $root . '/lib/HockeyDataClient.php';
-require $root . '/lib/NrbfReader.php';
-require $root . '/lib/Router.php';
-require $root . '/lib/TeamLogos.php';
-require $root . '/lib/Controllers/GameController.php';
-require $root . '/lib/Controllers/LeagueController.php';
-require $root . '/lib/Controllers/MetaController.php';
+require $root . '/lib/Clubs/ClubFilter.php';
+require $root . '/lib/Clubs/IjshockeyFeed.php';
+require $root . '/lib/GameReport/GameReport.php';
+require $root . '/lib/GameReport/HdCrypt.php';
+require $root . '/lib/HockeyData/HockeyDataClient.php';
+require $root . '/lib/HockeyData/NrbfReader.php';
+require $root . '/lib/Http/ApiException.php';
+require $root . '/lib/Http/Router.php';
+require $root . '/lib/Http/Controllers/GameController.php';
+require $root . '/lib/Http/Controllers/LeagueController.php';
+require $root . '/lib/Http/Controllers/MetaController.php';
 
 $config = require $root . '/config.php';
 header('Content-Type: application/json; charset=utf-8');

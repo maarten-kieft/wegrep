@@ -11,7 +11,7 @@ const TTL = 24 * 60 * 60 * 1000
 const dict = ref<LogoDict | null>(null)
 let loading: Promise<unknown> | null = null
 
-// Must match TeamLogos::normalize() on the server (lowercase, collapse whitespace).
+// Must match IjshockeyFeed::normalize() on the server (lowercase, collapse whitespace).
 const normalize = (name: string) => name.toLowerCase().replace(/\s+/g, ' ').trim()
 
 /** Logo url for a team, by hockeydata id first, then by name. Reactive. */

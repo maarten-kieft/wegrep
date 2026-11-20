@@ -1,7 +1,9 @@
 <?php
 declare(strict_types=1);
 
-namespace Wegrep;
+namespace Wegrep\HockeyData;
+
+use Wegrep\Http\ApiException;
 
 /**
  * Client for the hockeydata LOS6 API, mirroring the calls EGREP makes.

@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace Wegrep;
+namespace Wegrep\GameReport;
 
 /**
  * The "[HD]" container EGREP uses for saved and uploaded game reports:

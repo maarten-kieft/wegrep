@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace Wegrep;
+namespace Wegrep\Http;
 
 /**
  * Minimal router: a list of [method, path regex, handler]. The first route whose

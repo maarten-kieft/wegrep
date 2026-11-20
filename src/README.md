@@ -8,7 +8,7 @@ Runs on any PHP host with Apache + mod_rewrite.
 src/
   backend/           what gets deployed
     public/          document root: api/index.php + .htaccess, the built SPA lands here
-    lib/             PHP: hockeydata client, NRBF reader, [HD] crypto, game report XML
+    lib/             PHP: Http/ (router, controllers), HockeyData/, GameReport/, Clubs/
     data/            penalty codes (from EGREP's config)
     config.php       settings (no secrets; committed)
   frontend/          Vue source (Vite), builds into backend/public/
@@ -53,7 +53,7 @@ Uploading is off by default (`upload_enabled`). The "Voorbeeld XML" button shows
 
 ## Club logos
 
-hockeydata has no team logos, but ijshockey.nl does. `backend/lib/TeamLogos.php` reads
+hockeydata has no team logos, but ijshockey.nl does. `backend/lib/Clubs/IjshockeyFeed.php` reads
 ijshockey.nl's public competition feeds once a day and builds a dictionary
 (hockeydata team id → logo url, and team name → logo url), served at `GET /api/logos`.
 The app matches each game's teams to a logo and falls back to lettered badges when

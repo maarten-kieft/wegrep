@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace Wegrep;
+namespace Wegrep\Clubs;
 
 /**
  * Optional club focus: when enabled, the app only shows the leagues and games of
@@ -9,7 +9,7 @@ namespace Wegrep;
  *
  * Teams are matched by name (substring, case-insensitive). Because hockeydata
  * sometimes returns a short code ("HOO-5") instead of the team name, the filter
- * also looks up the real names from the ijshockey schedule (TeamLogos' schedule
+ * also looks up the real names from the ijshockey schedule (IjshockeyFeed's schedule
  * index, keyed by game guid). If that schedule isn't available yet the filter
  * fails open (shows everything) rather than hiding the whole app.
  */
@@ -59,7 +59,7 @@ final class ClubFilter
     }
 
     /**
-     * Keep only the leagues where the club plays. $schedule is TeamLogos'
+     * Keep only the leagues where the club plays. $schedule is IjshockeyFeed's
      * guid => [home, away, league] index, or null when not cached yet.
      *
      * @param list<array{id:int,name:string}> $leagues
