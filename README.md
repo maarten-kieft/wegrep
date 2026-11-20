@@ -68,8 +68,9 @@ npm run typecheck
 ```
 src/
   backend/             PHP, this folder is what gets deployed
-    public/            document root: api/index.php (all /api routes), .htaccess; the built SPA lands here
+    public/            document root: api/index.php (route table for /api), .htaccess; the built SPA lands here
     lib/               PHP classes (namespace Wegrep\): hockeydata client, NRBF reader, [HD] crypto, game report XML
+      Controllers/     the /api endpoints (Meta, League, Game)
     data/              penalty codes, and the club logo cache (logo_cache/, gitignored)
     config.php         settings without secrets
   frontend/            Vue source: views/, components/, gameStore.ts (game state), api.ts (calls to /api)
@@ -100,3 +101,10 @@ Use the "Voorbeeld XML" button in a game to see exactly what would be uploaded, 
 - **Port 8080 already in use**: change `"8080:80"` in `docker-compose.yml` and the proxy target in
   `frontend/vite.config.ts`.
 - **Old version after a build on :8080**: the service worker served the cached app; hard refresh.
+
+## TODO
+
+- [ ] Decide whether to switch the app password to PHP sessions. Now the frontend keeps the password in
+  `localStorage` and sends it as `X-App-Password` on every request. A `POST /api/login` that sets an `HttpOnly`
+  session cookie would keep it out of JavaScript and allow logging out. Fine as is for a small group over HTTPS;
+  worth doing before the app is really public.
