@@ -4,6 +4,7 @@ import { computed, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { api, ApiError } from '../api'
 import AppHeader from '../components/AppHeader.vue'
+import ResumeBar from '../components/ResumeBar.vue'
 import TeamBadge from '../components/TeamBadge.vue'
 import { ensureLogos, gameLogo } from '../logos'
 import { storage } from '../storage'
@@ -65,6 +66,7 @@ const inProgress = (id: number) => storage.get(`game:${id}`) !== null
     <AppHeader variant="large" back="/leagues" />
 
     <div class="px-4 pt-6 max-w-4xl mx-auto">
+      <ResumeBar />
       <p class="text-muted-foreground text-center mb-6">Select a game</p>
 
       <!-- The league password lives on the server; show a hint if it isn't set there. -->

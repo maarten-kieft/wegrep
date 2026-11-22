@@ -4,6 +4,7 @@ import { computed, onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { api } from '../api'
 import AppHeader from '../components/AppHeader.vue'
+import ResumeBar from '../components/ResumeBar.vue'
 import type { League } from '../types'
 import { card } from '../ui'
 
@@ -33,6 +34,7 @@ const sorted = computed(() =>
     <AppHeader variant="large" />
 
     <div class="px-4 pt-6 max-w-4xl mx-auto">
+      <ResumeBar />
       <p class="text-muted-foreground text-center mb-6">Select a league to get started</p>
 
       <p v-if="loading" class="text-center text-muted-foreground py-8">Loading leagues…</p>
