@@ -94,13 +94,14 @@ final class AuthService
 
     private function notifyAdministrators(array $user): void
     {
-        $text = "{$user['firstname']} {$user['lastname']} ({$user['email']}) heeft een account aangemaakt voor Wegrep en wacht op goedkeuring.\n";
-        if ($this->config['app_url'] !== '') {
-            $text .= "\nGoedkeuren kan hier: {$this->config['app_url']}/admin\n";
-        }
+        $vars = [
+            'name' => "{$user['firstname']} {$user['lastname']}",
+            'email' => $user['email'],
+            'link' => $this->appLink('/admin'),
+        ];
         foreach ($this->users->administrators() as $admin) {
             try {
-                $this->mailer->send($admin['email'], "Nieuwe aanvraag voor Wegrep: {$user['firstname']} {$user['lastname']}", $text);
+                $this->mailer->sendTemplate($admin['email'], 'new-registration', $vars);
             } catch (ApiException $e) {
                 error_log("Could not notify administrator {$admin['email']}: " . $e->getMessage());
             }
@@ -117,13 +118,17 @@ final class AuthService
         $code = str_pad((string) random_int(0, 999999), 6, '0', STR_PAD_LEFT);
         $this->users->replaceCode((int) $user['id'], $this->hash($code), $now, $now + self::CODE_TTL);
 
-        $text = "Hoi {$user['firstname']},\n\nJe inlogcode is: $code\n\n";
-        if ($this->config['app_url'] !== '') {
-            $link = $this->config['app_url'] . '/login?' . http_build_query(['email' => $user['email'], 'code' => $code]);
-            $text .= "Of open deze link om direct in te loggen:\n$link\n\n";
-        }
-        $text .= "De code is 15 minuten geldig en werkt één keer. Heb je dit niet aangevraagd? Dan kun je deze mail negeren.\n";
-        $this->mailer->send($user['email'], 'Je inlogcode voor Wegrep: ' . $code, $text);
+        $this->mailer->sendTemplate($user['email'], 'login-code', [
+            'firstname' => $user['firstname'],
+            'code' => $code,
+            'link' => $this->appLink('/login?' . http_build_query(['email' => $user['email'], 'code' => $code])),
+        ]);
+    }
+
+    /** A link into the app, or null when app_url is not set (then mails carry the code only). */
+    private function appLink(string $path): ?string
+    {
+        return $this->config['app_url'] === '' ? null : $this->config['app_url'] . $path;
     }
 
     private function roleForNewUser(string $email): ?string

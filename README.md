@@ -105,6 +105,7 @@ src/
       Clubs/           ijshockey.nl feed (logos + schedule) and the club filter
       Auth/            Role, login codes, JWT and the admin actions
       Sessions/        saved game sessions (per user and game)
+      Mail/            Mailer (mail()) and the mail templates in Templates/ (content per mail, layout.php for the look)
       Storage/         MySQL connection, the user store and Migrations/ (one numbered file per schema change, run automatically)
     data/              penalty codes, and the club logo cache (logo_cache/, gitignored)
     config.php         settings without secrets
