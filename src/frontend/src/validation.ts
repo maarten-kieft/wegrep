@@ -25,6 +25,12 @@ export const duplicateJerseys = (players: Player[]): Set<string> => {
 
 const fullName = (p: Player) => `${p.lastname} ${p.firstname}`.trim()
 
+/** A team needs at least one player (team officials do not count). */
+export const hasNoPlayers = (players: Player[]) => !players.some((p) => p.position !== 'TO')
+
+/** How many captains (C) the dressed players of a team have: it has to be exactly one. */
+export const captainCount = (players: Player[]) => players.filter((p) => isDressed(p) && p.captain === 'C').length
+
 /** What is wrong with the lineup of one team. Empty = fine. */
 export function validateTeam(players: Player[]): string[] {
   const playing = players.filter((p) => p.position !== 'TO')
@@ -40,7 +46,7 @@ export function validateTeam(players: Player[]): string[] {
     const problem = jerseyProblem(p)
     if (problem) problems.push(`The number of ${fullName(p)} ${problem}.`)
   }
-  const captains = playing.filter((p) => isDressed(p) && p.captain === 'C').length
+  const captains = captainCount(players)
   if (captains === 0) problems.push('Choose a captain (C).')
   if (captains > 1) problems.push('Only one captain (C) is allowed.')
   return problems

@@ -201,7 +201,7 @@ async function resetGame() {
       <div class="fixed bottom-0 left-0 right-0 p-4 pb-[calc(1rem+env(safe-area-inset-bottom))] bg-background border-t border-border">
         <div class="max-w-4xl mx-auto">
           <p v-if="setupProblems.length" class="text-sm text-destructive text-center mb-2" role="alert">
-            {{ setupProblems.length === 1 ? '1 thing' : setupProblems.length + ' things' }} to fix before you can start (listed under the teams)</p>
+            Fix the fields marked in red to start the game.</p>
           <button :class="btn('default', 'lg', 'w-full h-12')" :disabled="setupProblems.length > 0" @click="startGame">Start Game</button>
         </div>
       </div>
