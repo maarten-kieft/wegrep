@@ -122,6 +122,7 @@ final class HockeyDataClient
     {
         $data = json_decode(preg_replace('/^\xEF\xBB\xBF/', '', $body), true);
         if (!is_array($data)) {
+            error_log('hockeydata sent something that is not JSON: ' . substr($body, 0, 1000));
             throw new ApiException('Unexpected response from hockeydata', 502);
         }
         return $data;
@@ -162,6 +163,8 @@ final class HockeyDataClient
             $error = $result === false ? 'request failed' : '';
         }
         if ($result === false || $code >= 400 || $code === 0) {
+            // What hockeydata actually answered, for the server log (the app only gets the short message).
+            error_log("hockeydata $method $url answered $code $error: " . substr((string) $result, 0, 1000));
             throw new ApiException("hockeydata request failed ($code $error)", 502);
         }
         return $result;
