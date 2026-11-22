@@ -138,5 +138,5 @@ Use the "Voorbeeld XML" button in a game to see exactly what would be uploaded, 
 
 ## TODO
 
-- See if its an option to we can upload a gamereport into the current windows application. If possible make it possible to download a gamereport so we can upload it in the application if the normal flow doesn't work
+- [ ] Check whether the Windows EGREP accepts a downloaded game report. The game screen can now download the report as plain XML or as an [HD] file (see `UploadPanel.vue`); try importing them in EGREP and adjust the format if needed (and drop the "still being checked" note in the panel).
 - Remove the claude co pilot from the github history

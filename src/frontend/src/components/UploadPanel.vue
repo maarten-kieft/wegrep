@@ -1,7 +1,8 @@
 <script setup lang="ts">
-import { CloudUpload, FileCode, ServerCrash } from 'lucide-vue-next'
+import { CloudUpload, Download, FileCode, ServerCrash } from 'lucide-vue-next'
 import { computed, ref, toRaw } from 'vue'
 import { api } from '../api'
+import { downloadText, reportFileName } from '../download'
 import type { GameStore } from '../gameStore'
 import { meta } from '../meta'
 import type { PrecheckResult } from '../types'
@@ -55,6 +56,22 @@ async function preview() {
   }
 }
 
+/** Save the report as a file (nothing is sent to hockeydata), to import by hand when the normal flow does not work. */
+async function download(kind: 'xml' | 'hd') {
+  busy.value = true
+  try {
+    const gd = props.game.report.value!.gamedata
+    const built = await api.preview(props.gameId, props.game.templateXml.value, state())
+    const name = reportFileName(props.gameId, gd.teama ?? '', gd.teamb ?? '', kind)
+    downloadText(name, kind === 'xml' ? built.xml : built.payload)
+    addLog(`Saved ${name}`)
+  } catch (e) {
+    addLog(`Download failed: ${(e as Error).message}`)
+  } finally {
+    busy.value = false
+  }
+}
+
 async function upload() {
   busy.value = true
   try {
@@ -93,6 +110,20 @@ async function upload() {
       <button :class="btn('outline', 'lg', 'h-12 bg-transparent')" @click="check">Check status</button>
       <button :class="btn('outline', 'lg', 'h-12 bg-transparent')" :disabled="busy" @click="preview">
         <FileCode class="w-4 h-4" /> Preview XML</button>
+    </div>
+
+    <div class="space-y-2">
+      <div class="grid grid-cols-2 gap-2">
+        <button :class="btn('outline', 'lg', 'h-12 bg-transparent')" :disabled="busy" @click="download('xml')">
+          <Download class="w-4 h-4" /> Download XML</button>
+        <button :class="btn('outline', 'lg', 'h-12 bg-transparent')" :disabled="busy" @click="download('hd')">
+          <Download class="w-4 h-4" /> Download [HD]</button>
+      </div>
+      <p class="text-xs text-muted-foreground">
+        For importing by hand in the Windows EGREP if submitting here does not work. Nothing is sent to hockeydata.
+        Whether EGREP accepts these files is still being checked: the XML is the plain report, the [HD] file is the same
+        report in the container EGREP itself writes.
+      </p>
     </div>
 
     <template v-if="meta.uploadEnabled">
