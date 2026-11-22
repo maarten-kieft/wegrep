@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { CloudUpload, Download, ServerCrash } from 'lucide-vue-next'
+import { CloudUpload, Download, LoaderCircle, ServerCrash } from 'lucide-vue-next'
 import { computed, ref, toRaw } from 'vue'
 import { api } from '../api'
 import { downloadText, reportFileName } from '../download'
@@ -20,7 +20,6 @@ const RESULT: Record<string, string> = {
 const log = ref<string[]>([])
 const precheck = ref<PrecheckResult | null>(null)
 const busy = ref(false)
-const confirming = ref(false)
 const blueCode = ref('')
 const redCode = ref('')
 
@@ -31,6 +30,7 @@ const scorekeeper = computed(() => {
 })
 const state = () => ({ ...structuredClone(toRaw(props.game.report.value!)), ruleset: structuredClone(toRaw(props.game.ruleset.value)) })
 const timesFilledIn = computed(() => !!props.game.report.value?.gamestart && !!props.game.report.value?.gameend)
+const submitting = ref(false)
 const tie = computed(() => props.game.score.value.home === props.game.score.value.away)
 
 async function check() {
@@ -63,6 +63,7 @@ async function downloadXml() {
 
 async function upload() {
   busy.value = true
+  submitting.value = true
   try {
     const res = await api.upload(props.gameId, props.game.templateXml.value, state(), 3,
       scorekeeper.value, blueCode.value, redCode.value)
@@ -73,7 +74,7 @@ async function upload() {
     addLog(`Upload failed: ${(e as Error).message}`)
   } finally {
     busy.value = false
-    confirming.value = false
+    submitting.value = false
   }
 }
 </script>
@@ -113,16 +114,11 @@ async function upload() {
       </div>
       <p v-if="scorekeeper && !timesFilledIn" class="text-sm text-warning">Fill in the start and end time of the game (Game times above) first.</p>
       <p v-if="!scorekeeper" class="text-sm text-warning">Fill in the scorekeeper (under Officials above) first: EGREP always sends their name with the upload.</p>
-      <button v-if="!confirming" :class="btn('default', 'lg', 'w-full h-12 font-semibold')" :disabled="busy || !scorekeeper || !timesFilledIn" @click="confirming = true">
-        Submit Game Sheet</button>
-      <div v-else class="rounded-lg border border-destructive/50 p-3 space-y-3">
-        <p class="text-sm">This sends the official game sheet ({{ game.score.value.home }}–{{ game.score.value.away }}) to hockeydata.
-          <strong v-if="tie" class="block mt-1">The score is tied. EGREP blocks this when the game has overtime or a shoot-out.</strong></p>
-        <div class="grid grid-cols-2 gap-2">
-          <button :class="btn('outline', 'lg', 'h-12 bg-transparent')" @click="confirming = false">Cancel</button>
-          <button :class="btn('destructive', 'lg', 'h-12')" :disabled="busy" @click="upload">Yes, submit</button>
-        </div>
-      </div>
+      <p v-if="tie" class="text-sm text-warning">The score is tied. EGREP blocks this when the game has overtime or a shoot-out.</p>
+      <button :class="btn('default', 'lg', `w-full h-12 font-semibold ${submitting ? 'disabled:opacity-100' : ''}`)"
+        :disabled="busy || !scorekeeper || !timesFilledIn" :aria-busy="submitting" @click="upload">
+        <LoaderCircle v-if="submitting" class="w-5 h-5 animate-spin" />
+        {{ submitting ? 'Submitting…' : 'Submit Game Sheet' }}</button>
     </template>
 
     <ul v-if="log.length" class="rounded-lg bg-muted p-3 text-xs font-mono space-y-1 max-h-48 overflow-y-auto">
