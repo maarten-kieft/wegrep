@@ -155,13 +155,13 @@ Status: **te controleren** = gebouwd en door mij getest, jij moet het nog nakijk
 - **Te controleren** Beheer, tab Sessies: de sessies van alle gebruikers, met Bekijken (alleen-lezen, opent in een nieuw browsertabblad). Ook Overnemen: een sessie van een gebruiker naar jezelf verplaatsen, met bevestiging en een waarschuwing als je zelf al een sessie voor die wedstrijd hebt; de vorige eigenaar krijgt bij de volgende sync een melding. Ook: de Doorgaan-met-balk met weggooien op de leagues- en games-pagina.
 - **Te controleren** Offline blijven werken: geen inlogscherm zonder verbinding, een lopende wedstrijd werkt door en synchroniseert later, "Doorgaan met" op het startscherm. Zie ook het open punt over de koude start hieronder.
 - **Te controleren** GitHub pipeline: checks bij een PR en op main, op main ook deploy naar SFTP. Nog nooit op GitHub gedraaid.
-- **Te controleren** Download van het wedstrijdverslag als XML of [HD]-bestand (knoppen onderaan het wedstrijdscherm na "End game").
+- **Te controleren** Download van het wedstrijdverslag als XML-bestand (knop onder het uploadpaneel na "End game"); officials (o.a. de scorekeeper) zijn ook op dat eindscherm in te vullen.
 
 ### Open
 
 - **Open** GitHub-secrets aanmaken voor de deploy: `SFTP_HOST`, `SFTP_PORT (optioneel)`, `SFTP_USERNAME`, `SFTP_PASSWORD`, `SFTP_REMOTE_PATH`. Vraag: wil je inloggen met een SSH-sleutel in plaats van een wachtwoord? Dan pas ik de workflow aan.
 - **Open** Productie-instellingen op de server: `WEGREP_DB_*`, `WEGREP_JWT_SECRET`, `WEGREP_ADMIN_EMAIL`, `WEGREP_APP_URL`, `WEGREP_MAIL_FROM` (zie `src/.env.example`). Vraag: kan de hosting environment variables zetten, of gebruiken we een `.env` naast `config.php`?
 - **Te controleren** Upload naar hockeydata: de request is nu gelijkgetrokken met een echte EGREP-upload (v26.1: versie, veld errors=null, element-volgorde en standaardwaarden in het XML, scorekeeper, start- en eindtijd verplicht; die tijden worden automatisch gevuld bij Start Game en End game en zijn aan te passen onder Game times). Test op een demo-wedstrijd; zet WEGREP_DEBUG_HOCKEYDATA=true om de request en het antwoord in het serverlog te zien.
-- **Open** Kijken of de Windows EGREP het gedownloade verslag accepteert (XML of [HD]). Vraag: welk van de twee werkt? Pas daarna haal ik de "nog niet gecontroleerd"-tekst uit het paneel weg.
+- **Open** Kijken of de Windows EGREP het gedownloade verslag accepteert (XML). Pas daarna haal ik de "nog niet gecontroleerd"-tekst uit het paneel weg.
 - **Open** Offline koude start (app openen zonder verbinding) testen op een echt apparaat; in mijn testbrowser kon de service worker niet geregistreerd worden.
 - **Open** Claude als co-author uit de git-historie halen (9 commits). Vraag: mag ik de historie herschrijven en wil je zelf force pushen? Dit vraagt dat iedereen daarna opnieuw kloont.

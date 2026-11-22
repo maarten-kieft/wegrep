@@ -5,6 +5,7 @@ import { useRoute, useRouter } from 'vue-router'
 import { api } from '../api'
 import AppHeader from '../components/AppHeader.vue'
 import GameTimer from '../components/GameTimer.vue'
+import OfficialsEditor from '../components/OfficialsEditor.vue'
 import GoalModal from '../components/GoalModal.vue'
 import PenaltyModal from '../components/PenaltyModal.vue'
 import TeamBadge from '../components/TeamBadge.vue'
@@ -64,11 +65,10 @@ const shots = (p: string) => report.value?.shots[p] ?? { home: 0, away: 0 }
 const totalShots = (s: Side) => shotPeriods.value.reduce((t, p) => t + shots(p)[s], 0)
 
 // ---- officials ----
-const OFFICIALS: Record<string, string> = {
-  referee1: 'Referee 1', referee2: 'Referee 2', linesman1: 'Linesman 1', linesman2: 'Linesman 2', scorekeeper: 'Scorekeeper',
-  timekeeper: 'Timekeeper', goaljudge1: 'Goal judge 1', goaljudge2: 'Goal judge 2', gamesupervisor: 'Supervisor',
-}
-const officials = computed(() => report.value?.officials.filter((o) => OFFICIALS[o.function]) ?? [])
+const scorekeeperMissing = computed(() => {
+  const o = report.value?.officials.find((x) => x.function.toLowerCase() === 'scorekeeper')
+  return !o || `${o.lastname}${o.firstname}`.trim() === ''
+})
 
 // ---- live scoring: every minute while on, like EGREP ----
 const live = ref(false)
@@ -191,13 +191,7 @@ async function resetGame() {
 
         <div :class="[card, 'p-4']">
           <h3 class="font-semibold mb-3">Officials</h3>
-          <div class="space-y-3">
-            <div v-for="o in officials" :key="o.function" class="grid grid-cols-[6.5rem_1fr_1fr] gap-2 items-center">
-              <span class="text-sm text-muted-foreground">{{ OFFICIALS[o.function] }}</span>
-              <input v-model="o.lastname" class="field h-10 text-sm" placeholder="Last name" />
-              <input v-model="o.firstname" class="field h-10 text-sm" placeholder="First name" />
-            </div>
-          </div>
+          <OfficialsEditor :officials="report.officials" />
         </div>
       </div>
 
@@ -398,6 +392,12 @@ async function resetGame() {
             <button :class="btn('default')" @click="router.push(back)">Back to Games</button>
           </div>
         </div>
+
+        <!-- The officials can still be filled in here: the scorekeeper is needed to submit. Open when it is missing. -->
+        <details v-if="report" :open="scorekeeperMissing" :class="[card, 'p-4']">
+          <summary class="font-semibold cursor-pointer">Officials<span v-if="scorekeeperMissing" class="ml-2 text-sm font-normal text-warning">scorekeeper is missing</span></summary>
+          <div class="mt-3"><OfficialsEditor :officials="report.officials" /></div>
+        </details>
 
         <div v-if="report" :class="[card, 'p-4']">
           <h3 class="font-semibold mb-1">Game times</h3>

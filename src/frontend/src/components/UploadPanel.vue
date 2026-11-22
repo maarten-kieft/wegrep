@@ -58,13 +58,13 @@ async function preview() {
 }
 
 /** Save the report as a file (nothing is sent to hockeydata), to import by hand when the normal flow does not work. */
-async function download(kind: 'xml' | 'hd') {
+async function downloadXml() {
   busy.value = true
   try {
     const gd = props.game.report.value!.gamedata
     const built = await api.preview(props.gameId, props.game.templateXml.value, state())
-    const name = reportFileName(props.gameId, gd.teama ?? '', gd.teamb ?? '', kind)
-    downloadText(name, kind === 'xml' ? built.xml : built.payload)
+    const name = reportFileName(props.gameId, gd.teama ?? '', gd.teamb ?? '')
+    downloadText(name, built.xml)
     addLog(`Saved ${name}`)
   } catch (e) {
     addLog(`Download failed: ${(e as Error).message}`)
@@ -114,16 +114,11 @@ async function upload() {
     </div>
 
     <div class="space-y-2">
-      <div class="grid grid-cols-2 gap-2">
-        <button :class="btn('outline', 'lg', 'h-12 bg-transparent')" :disabled="busy" @click="download('xml')">
-          <Download class="w-4 h-4" /> Download XML</button>
-        <button :class="btn('outline', 'lg', 'h-12 bg-transparent')" :disabled="busy" @click="download('hd')">
-          <Download class="w-4 h-4" /> Download [HD]</button>
-      </div>
+      <button :class="btn('outline', 'lg', 'h-12 bg-transparent w-full')" :disabled="busy" @click="downloadXml">
+        <Download class="w-4 h-4" /> Download XML</button>
       <p class="text-xs text-muted-foreground">
         For importing by hand in the Windows EGREP if submitting here does not work. Nothing is sent to hockeydata.
-        Whether EGREP accepts these files is still being checked: the XML is the plain report, the [HD] file is the same
-        report in the container EGREP itself writes.
+        Whether EGREP accepts this file is still being checked.
       </p>
     </div>
 
@@ -133,7 +128,7 @@ async function upload() {
         <input v-model="redCode" class="field" placeholder="Red code (optional)" />
       </div>
       <p v-if="scorekeeper && !timesFilledIn" class="text-sm text-warning">Fill in the start and end time of the game (Game times above) first.</p>
-      <p v-if="!scorekeeper" class="text-sm text-warning">Fill in the scorekeeper (officials, in the game setup) first: EGREP always sends their name with the upload.</p>
+      <p v-if="!scorekeeper" class="text-sm text-warning">Fill in the scorekeeper (under Officials above) first: EGREP always sends their name with the upload.</p>
       <button v-if="!confirming" :class="btn('default', 'lg', 'w-full h-12 font-semibold')" :disabled="busy || !scorekeeper || !timesFilledIn" @click="confirming = true">
         Submit Game Sheet</button>
       <div v-else class="rounded-lg border border-destructive/50 p-3 space-y-3">
