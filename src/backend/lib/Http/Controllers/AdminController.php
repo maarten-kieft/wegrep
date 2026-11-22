@@ -7,12 +7,16 @@ use Wegrep\Auth\AdminService;
 use Wegrep\Auth\Authenticator;
 use Wegrep\Http\ApiException;
 use Wegrep\Http\Request;
+use Wegrep\Sessions\SessionService;
 
 /** The /admin endpoints. index.php only lets administrators in. */
 final class AdminController
 {
-    public function __construct(private readonly AdminService $admin, private readonly Authenticator $authenticator)
-    {
+    public function __construct(
+        private readonly AdminService $admin,
+        private readonly Authenticator $authenticator,
+        private readonly SessionService $sessions
+    ) {
     }
 
     /** GET /admin/users */
@@ -36,5 +40,17 @@ final class AdminController
     {
         $this->admin->remove($this->authenticator->user(), (int) $id);
         return ['ok' => true];
+    }
+
+    /** GET /admin/sessions: the sessions of all users */
+    public function sessions(): array
+    {
+        return $this->sessions->listAll();
+    }
+
+    /** GET /admin/sessions/{userId}/{gameId}: one session in full, to look at it */
+    public function session(string $userId, string $gameId): array
+    {
+        return $this->sessions->get((int) $userId, (int) $gameId) ?? throw new ApiException('Sessie niet gevonden', 404);
     }
 }

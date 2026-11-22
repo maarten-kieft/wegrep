@@ -4,10 +4,12 @@ import { computed, onMounted, ref } from 'vue'
 import { api } from '../api'
 import { currentUser } from '../auth'
 import AppHeader from '../components/AppHeader.vue'
-import type { AdminUser } from '../types'
+import type { AdminSession, AdminUser } from '../types'
 import { btn, card } from '../ui'
 
+const tab = ref<'users' | 'sessions'>('users')
 const users = ref<AdminUser[]>([])
+const sessions = ref<AdminSession[]>([])
 const loading = ref(true)
 const error = ref('')
 const busyId = ref<number | null>(null)
@@ -19,7 +21,7 @@ const isMe = (u: AdminUser) => u.id === currentUser.value?.id
 
 async function load() {
   try {
-    users.value = await api.adminUsers()
+    ;[users.value, sessions.value] = await Promise.all([api.adminUsers(), api.adminSessions()])
   } catch (e) {
     error.value = (e as Error).message
   } finally {
@@ -45,19 +47,46 @@ async function act(user: AdminUser, action: () => Promise<unknown>) {
 const setRole = (user: AdminUser, role: 'user' | 'administrator') => act(user, () => api.setRole(user.id, role))
 const remove = (user: AdminUser) => act(user, () => api.removeUser(user.id))
 
-const fullName = (u: AdminUser) => `${u.firstname} ${u.lastname}`
+const fullName = (u: { firstname: string; lastname: string }) => `${u.firstname} ${u.lastname}`
 const date = (iso: string) => new Date(iso).toLocaleDateString('nl-NL', { day: 'numeric', month: 'short', year: 'numeric' })
+const when = (ms: number) => new Date(ms).toLocaleString('nl-NL', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })
 </script>
 
 <template>
   <div class="min-h-screen bg-background pb-20 overflow-x-hidden">
-    <AppHeader variant="small" title="Beheer" subtitle="Gebruikers" back="/" />
+    <AppHeader variant="small" title="Beheer" :subtitle="tab === 'users' ? 'Gebruikers' : 'Sessies van alle gebruikers'" back="/" />
 
-    <div class="px-4 pt-6 max-w-3xl mx-auto space-y-8">
+    <div class="px-4 pt-6 max-w-3xl mx-auto space-y-6">
+      <div class="flex gap-2" role="tablist">
+        <button role="tab" :aria-selected="tab === 'users'" :class="btn(tab === 'users' ? 'default' : 'outline', 'default', 'flex-1')"
+          @click="tab = 'users'">Gebruikers<span v-if="pending.length"> ({{ pending.length }} wacht)</span></button>
+        <button role="tab" :aria-selected="tab === 'sessions'" :class="btn(tab === 'sessions' ? 'default' : 'outline', 'default', 'flex-1')"
+          @click="tab = 'sessions'">Sessies ({{ sessions.length }})</button>
+      </div>
+
       <p v-if="loading" class="text-center text-muted-foreground py-8">Laden…</p>
       <p v-if="error" class="text-center text-destructive" role="alert">{{ error }}</p>
 
-      <template v-if="!loading">
+      <!-- ================= SESSIONS ================= -->
+      <section v-if="!loading && tab === 'sessions'">
+        <p v-if="!sessions.length" class="text-sm text-muted-foreground">Er zijn nog geen sessies.</p>
+        <div class="space-y-2">
+          <div v-for="x in sessions" :key="x.user.id + '-' + x.gameId" :class="[card, 'p-4 flex flex-wrap items-center justify-between gap-3']">
+            <div class="min-w-0">
+              <div class="font-medium truncate">{{ x.title }}</div>
+              <div class="text-sm text-muted-foreground">
+                Stand {{ x.scoreHome }}-{{ x.scoreAway }} · {{ x.phase === 'ended' ? 'afgelopen' : 'bezig' }} · {{ when(x.savedAt) }}
+              </div>
+              <div class="text-sm text-muted-foreground truncate">{{ fullName(x.user) }} · {{ x.user.email }}</div>
+            </div>
+            <!-- A separate browser tab, so the list stays where it is. -->
+            <RouterLink :to="`/admin/sessions/${x.user.id}/${x.gameId}`" target="_blank" :class="btn('default', 'sm')">Bekijken</RouterLink>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= USERS ================= -->
+      <template v-if="!loading && tab === 'users'">
         <section>
           <h2 class="font-semibold mb-3">Wachten op goedkeuring ({{ pending.length }})</h2>
           <p v-if="!pending.length" class="text-sm text-muted-foreground">Niemand wacht op goedkeuring.</p>

@@ -146,6 +146,7 @@ Status: **te controleren** = gebouwd en door mij getest, jij moet het nog nakijk
 - **Te controleren** Goedkeuring door een beheerder: een nieuw account ziet een wachtscherm, alle beheerders krijgen een mail, goedkeuren op `/admin` (link "Beheer" rechtsboven naast de terugknop).
 - **Te controleren** Beheerpagina: rol wijzigen (gebruiker / beheerder) en gebruikers verwijderen of afwijzen.
 - **Te controleren** Sessies bewaren: gestarte wedstrijden staan in de browser en in de database, de pagina "Mijn wedstrijden" (gebruikersmenu), bij een bestaande sessie de keuze doorgaan of nieuw beginnen.
+- **Te controleren** Beheer, tab Sessies: de sessies van alle gebruikers, met Bekijken (alleen-lezen, opent in een nieuw browsertabblad). Ook: de Doorgaan-met-balk met weggooien op de leagues- en games-pagina.
 - **Te controleren** Offline blijven werken: geen inlogscherm zonder verbinding, een lopende wedstrijd werkt door en synchroniseert later, "Doorgaan met" op het startscherm. Zie ook het open punt over de koude start hieronder.
 - **Te controleren** GitHub pipeline: checks bij een PR en op main, op main ook deploy naar SFTP. Nog nooit op GitHub gedraaid.
 - **Te controleren** Download van het wedstrijdverslag als XML of [HD]-bestand (knoppen onderaan het wedstrijdscherm na "End game").

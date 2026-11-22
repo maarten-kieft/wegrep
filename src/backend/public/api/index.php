@@ -61,8 +61,9 @@ try {
     $auth = new AuthController($authService, $authenticator);
     $leagues = new LeagueController($client, $config);
     $games = new GameController($client, $config);
-    $admin = new AdminController(new AdminService($users), $authenticator);
-    $sessions = new SessionController(new SessionService($db), $authenticator);
+    $sessionService = new SessionService($db);
+    $admin = new AdminController(new AdminService($users), $authenticator, $sessionService);
+    $sessions = new SessionController($sessionService, $authenticator);
 
     $router = (new Router())
         ->add('GET',  '/meta',                   $meta->meta(...))
@@ -74,6 +75,8 @@ try {
         ->add('GET',  '/admin/users',            $admin->users(...))
         ->add('PATCH', '/admin/users/(\d+)',     $admin->setRole(...))
         ->add('DELETE', '/admin/users/(\d+)',    $admin->remove(...))
+        ->add('GET',  '/admin/sessions',         $admin->sessions(...))
+        ->add('GET',  '/admin/sessions/(\d+)/(\d+)', $admin->session(...))
         ->add('GET',  '/sessions',               $sessions->list(...))
         ->add('GET',  '/sessions/(\d+)',         $sessions->show(...))
         ->add('PUT',  '/sessions/(\d+)',         $sessions->save(...))

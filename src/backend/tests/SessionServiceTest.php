@@ -81,3 +81,13 @@ test('sessions go with the account', function () {
     $users->delete((int) $u['id']);
     assertSame([], $sessions->list((int) $u['id']));
 });
+
+test('administrators can list the sessions of everybody, with who they belong to', function () {
+    [$sessions, $a, $b] = sessionFixture();
+    $sessions->put($a, 100, sessionBody(1000));
+    $sessions->put($b, 200, sessionBody(2000, 'ended'));
+    $all = $sessions->listAll();
+    assertSame([200, 100], array_column($all, 'gameId'));
+    assertSame('b@example.com', $all[0]['user']['email']);
+    assertSame($a, $all[1]['user']['id']);
+});

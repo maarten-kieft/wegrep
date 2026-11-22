@@ -29,6 +29,22 @@ final class SessionService
         return array_map(self::summary(...), $stmt->fetchAll());
     }
 
+    /**
+     * Everybody's sessions, for the administrators, newest first.
+     *
+     * @return list<array>
+     */
+    public function listAll(): array
+    {
+        $rows = $this->db->pdo()->query(
+            'SELECT s.game_id, s.league_id, s.title, s.phase, s.score_home, s.score_away, s.saved_at, u.id AS user_id, u.firstname, u.lastname, u.email
+             FROM game_sessions s JOIN users u ON u.id = s.user_id ORDER BY s.saved_at DESC'
+        )->fetchAll();
+        return array_map(static fn(array $r): array => self::summary($r) + [
+            'user' => ['id' => (int) $r['user_id'], 'firstname' => $r['firstname'], 'lastname' => $r['lastname'], 'email' => $r['email']],
+        ], $rows);
+    }
+
     /** The full session, or null. */
     public function get(int $userId, int $gameId): ?array
     {

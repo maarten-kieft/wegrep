@@ -174,3 +174,10 @@ export interface SavedGame {
   leagueId?: number
   userId?: number
 }
+
+/** A session of any user, for the administrator pages. */
+export interface AdminSession extends SessionSummary {
+  user: { id: number; firstname: string; lastname: string; email: string }
+}
+
+export interface AdminSessionDetail extends RemoteSession {}
