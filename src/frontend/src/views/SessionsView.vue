@@ -3,8 +3,8 @@ import { Trash2 } from 'lucide-vue-next'
 import { onMounted, ref } from 'vue'
 import { api } from '../api'
 import AppHeader from '../components/AppHeader.vue'
-import { listLocal, removeLocal } from '../localGames'
-import { clearDirty } from '../sessionSync'
+import { discardSession } from '../discardSession'
+import { listLocal } from '../localGames'
 import type { SessionSummary } from '../types'
 import { btn, card } from '../ui'
 
@@ -34,15 +34,12 @@ onMounted(async () => {
 async function remove(s: SessionSummary) {
   error.value = ''
   try {
-    await api.deleteSession(s.gameId)
+    await discardSession(s.gameId)
   } catch (e) {
-    // Without a connection the server copy would come back; keep everything and say so.
-    error.value = e instanceof TypeError ? 'Geen verbinding: verwijderen kan alleen online.' : (e as Error).message
+    error.value = (e as Error).message
     confirmId.value = null
     return
   }
-  removeLocal(s.gameId)
-  clearDirty(s.gameId)
   sessions.value = sessions.value.filter((x) => x.gameId !== s.gameId)
   confirmId.value = null
 }
