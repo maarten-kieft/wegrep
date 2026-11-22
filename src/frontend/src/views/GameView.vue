@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { AlertTriangle, CheckCircle, Pencil, Radio, Target, Trash2 } from 'lucide-vue-next'
 import { computed, onBeforeUnmount, ref, toRaw, watch } from 'vue'
-import { useRouter } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import { api } from '../api'
 import AppHeader from '../components/AppHeader.vue'
 import GameTimer from '../components/GameTimer.vue'
@@ -13,13 +13,16 @@ import UploadPanel from '../components/UploadPanel.vue'
 import { ensureLogos, logoFor } from '../logos'
 import { useGame } from '../gameStore'
 import { meta } from '../meta'
+import { syncConflict } from '../sessionSync'
 import { formatTime } from '../time'
 import type { Goal, Penalty, Side } from '../types'
 import { btn, card } from '../ui'
 
 const props = defineProps<{ leagueId: number; gameId: number }>()
 const router = useRouter()
-const game = useGame(props.gameId)
+const route = useRoute()
+// ?resume=1 comes from the session list: open the saved session without asking.
+const game = useGame(props.gameId, props.leagueId, route.query.resume === '1')
 game.load()
 
 const report = game.report
@@ -109,6 +112,13 @@ watch(() => game.clock.period, (p) => {
     report.value.livetime = p <= game.ruleset.value.PeriodNum ? `START-${p}` : 'START-OVT'
   }
 })
+const savedAtText = (ms: number) => new Date(ms).toLocaleString('nl-NL', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })
+async function startNew() {
+  // The old session goes away for good: ask once more.
+  if (window.confirm('Weet je zeker dat je een nieuwe sessie wilt beginnen? De bestaande sessie wordt verwijderd.')) {
+    await game.resolveChoice(false)
+  }
+}
 async function resetGame() {
   confirmReset.value = false
   await game.resetFromServer()
@@ -117,7 +127,34 @@ async function resetGame() {
 
 <template>
   <div class="min-h-screen bg-background overflow-x-hidden">
+    <!-- Another device saved a newer version of this game while this one was open. -->
+    <div v-if="syncConflict === gameId" class="fixed top-0 inset-x-0 z-40 bg-warning text-warning-foreground px-4 py-2 text-sm flex items-center justify-between gap-3">
+      <span>Op een ander apparaat is een nieuwere versie van deze wedstrijd opgeslagen.</span>
+      <span class="flex gap-2 shrink-0">
+        <button class="underline font-medium" @click="game.adoptRemote()">Laad die</button>
+        <button class="underline" @click="syncConflict = null">Negeer</button>
+      </span>
+    </div>
     <div v-if="game.loading.value" class="min-h-screen grid place-items-center text-muted-foreground">Loading game…</div>
+    <!-- A started session of this game exists on the server (maybe from another device). -->
+    <div v-else-if="game.choice.value" class="min-h-screen grid place-items-center p-4">
+      <div :class="[card, 'w-full max-w-md p-6 space-y-4']">
+        <h2 class="text-lg font-bold">Je hebt al een sessie voor deze wedstrijd</h2>
+        <div class="rounded-lg bg-secondary p-3 text-sm">
+          <div class="font-medium">{{ game.choice.value.remote.title }}</div>
+          <div class="text-muted-foreground">
+            Stand {{ game.choice.value.remote.scoreHome }}-{{ game.choice.value.remote.scoreAway }} ·
+            {{ game.choice.value.remote.phase === 'ended' ? 'afgelopen' : 'bezig' }} · laatst bijgewerkt {{ savedAtText(game.choice.value.remote.savedAt) }}
+          </div>
+        </div>
+        <p class="text-sm text-muted-foreground">
+          Doorgaan opent die sessie. Een nieuwe sessie beginnen verwijdert de oude, ook van je andere apparaten.
+        </p>
+        <button :class="btn('default', 'lg', 'w-full')" @click="game.resolveChoice(true)">Doorgaan met deze sessie</button>
+        <button :class="btn('outline', 'lg', 'w-full')" @click="startNew">Nieuwe sessie beginnen</button>
+        <RouterLink :to="back" :class="btn('ghost', 'default', 'w-full')">Terug naar de wedstrijden</RouterLink>
+      </div>
+    </div>
     <div v-else-if="game.error.value" class="min-h-screen grid place-items-center p-4 text-center">
       <div class="space-y-4">
         <p class="text-destructive">{{ game.error.value }}</p>

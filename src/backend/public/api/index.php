@@ -18,8 +18,10 @@ use Wegrep\Http\Controllers\AuthController;
 use Wegrep\Http\Controllers\GameController;
 use Wegrep\Http\Controllers\LeagueController;
 use Wegrep\Http\Controllers\MetaController;
+use Wegrep\Http\Controllers\SessionController;
 use Wegrep\Http\Router;
 use Wegrep\Mail\Mailer;
+use Wegrep\Sessions\SessionService;
 
 $root = dirname(__DIR__, 2);
 require $root . '/lib/autoload.php';
@@ -33,7 +35,8 @@ try {
     $path = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
     $path = '/' . trim(preg_replace('#^.*?/api(?=/|$)#', '', $path), '/');
 
-    $users = new UserStore(new Database($config));
+    $db = new Database($config);
+    $users = new UserStore($db);
     $authenticator = new Authenticator($users, $config['jwt_secret']);
     $authService = new AuthService($users, new Mailer($config), $config);
 
@@ -59,6 +62,7 @@ try {
     $leagues = new LeagueController($client, $config);
     $games = new GameController($client, $config);
     $admin = new AdminController(new AdminService($users), $authenticator);
+    $sessions = new SessionController(new SessionService($db), $authenticator);
 
     $router = (new Router())
         ->add('GET',  '/meta',                   $meta->meta(...))
@@ -70,6 +74,10 @@ try {
         ->add('GET',  '/admin/users',            $admin->users(...))
         ->add('PATCH', '/admin/users/(\d+)',     $admin->setRole(...))
         ->add('DELETE', '/admin/users/(\d+)',    $admin->remove(...))
+        ->add('GET',  '/sessions',               $sessions->list(...))
+        ->add('GET',  '/sessions/(\d+)',         $sessions->show(...))
+        ->add('PUT',  '/sessions/(\d+)',         $sessions->save(...))
+        ->add('DELETE', '/sessions/(\d+)',       $sessions->delete(...))
         ->add('GET',  '/leagues',                $leagues->leagues(...))
         ->add('GET',  '/leagues/(\d+)/games',    $leagues->games(...))
         ->add('GET',  '/games/(\d+)',            $games->show(...))

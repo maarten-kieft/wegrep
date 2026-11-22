@@ -7,6 +7,7 @@ import GamesView from './views/GamesView.vue'
 import GameView from './views/GameView.vue'
 import LoginView from './views/LoginView.vue'
 import AdminView from './views/AdminView.vue'
+import SessionsView from './views/SessionsView.vue'
 import { isAdmin, isSignedIn } from './auth'
 import { ensureLogos } from './logos'
 import './style.css'
@@ -20,6 +21,7 @@ const router = createRouter({
   routes: [
     { path: '/login', component: LoginView },
     { path: '/admin', component: AdminView, meta: { admin: true } },
+    { path: '/sessions', component: SessionsView },
     { path: '/', component: HomeView },
     { path: '/leagues', component: LeaguesView },
     { path: '/leagues/:leagueId/games', component: GamesView, props: (r) => ({ leagueId: Number(r.params.leagueId) }) },

@@ -4,6 +4,7 @@ import { useRoute, useRouter } from 'vue-router'
 import { api } from './api'
 import { currentUser, isSignedIn, setUser } from './auth'
 import { loadMeta } from './meta'
+import { startSync } from './sessionSync'
 import PendingApprovalView from './views/PendingApprovalView.vue'
 
 const router = useRouter()
@@ -26,6 +27,7 @@ onMounted(async () => {
   try {
     await loadMeta()
     ready.value = true
+    startSync()
     refreshUser()
   } catch (e) {
     startError.value = (e as Error).message

@@ -1,6 +1,6 @@
 import type {
   GameListItem, GameResponse, League, LogoDict, Meta, PrecheckResult, ReportState, UploadResult, User,
-  AdminUser,
+  AdminUser, RemoteSession, SavedGame, SessionSummary,
 } from './types'
 import { getToken, renewToken, signOut } from './auth'
 
@@ -46,6 +46,19 @@ export const api = {
   removeUser: (id: number) => request<{ ok: true }>(`/admin/users/${id}`, { method: 'DELETE' }),
   setRole: (id: number, role: 'user' | 'administrator') =>
     request<User>(`/admin/users/${id}`, { method: 'PATCH', body: JSON.stringify({ role }) }),
+  sessions: () => request<SessionSummary[]>('/sessions'),
+  /** The saved session of a game, null when there is none. */
+  session: async (gameId: number, signal?: AbortSignal) => {
+    try {
+      return await request<RemoteSession>(`/sessions/${gameId}`, { signal })
+    } catch (e) {
+      if (e instanceof ApiError && e.status === 404) return null
+      throw e
+    }
+  },
+  putSession: (gameId: number, summary: SessionSummary, state: SavedGame) =>
+    request<{ ok: true }>(`/sessions/${gameId}`, { method: 'PUT', body: JSON.stringify({ ...summary, state }) }),
+  deleteSession: (gameId: number) => request<{ ok: true }>(`/sessions/${gameId}`, { method: 'DELETE' }),
   leagues: () => request<League[]>('/leagues'),
   logos: () => request<LogoDict>('/logos'),
   games: (leagueId: number, selection: string) =>

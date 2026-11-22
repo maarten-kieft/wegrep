@@ -139,3 +139,38 @@ export interface AdminUser extends User {
   createdAt: string
   verified: boolean
 }
+
+/** A saved game report session as the list shows it (the server keeps one per user and game). */
+export interface SessionSummary {
+  gameId: number
+  leagueId: number
+  title: string
+  phase: 'setup' | 'active' | 'ended'
+  scoreHome: number
+  scoreAway: number
+  savedAt: number // ms since epoch, set by the device that saved it
+}
+
+export interface RemoteSession extends SessionSummary {
+  state: SavedGame
+}
+
+export interface Clock {
+  period: number // 1..PeriodNum, then overtime periods
+  elapsed: number // seconds played in this period when the clock was last stopped
+  runningSince: number | null // Date.now() when started
+}
+
+export type Phase = 'setup' | 'active' | 'ended'
+
+/** Everything about one game that is kept in the browser (and synced to the server once it is started). */
+export interface SavedGame {
+  phase: Phase
+  templateXml: string
+  report: ReportState
+  ruleset: GameRuleset
+  clock: Clock
+  savedAt: number
+  leagueId?: number
+  userId?: number
+}

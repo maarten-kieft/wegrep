@@ -1,36 +1,30 @@
 import { computed, onScopeDispose, reactive, ref, watch } from 'vue'
 import { api } from './api'
-import { storage } from './storage'
-import type { GameRuleset, Goal, Penalty, ReportState, Side } from './types'
+import { currentUser } from './auth'
+import { readLocal, removeLocal, summarize, writeLocal } from './localGames'
+import { clearDirty, markDirty, pushNow, schedulePush } from './sessionSync'
+import type { Clock, GameRuleset, Goal, Penalty, Phase, ReportState, SavedGame, SessionSummary, Side } from './types'
 
-interface Clock {
-  period: number // 1..PeriodNum, then overtime periods
-  elapsed: number // seconds played in this period when the clock was last stopped
-  runningSince: number | null // Date.now() when started
-}
-
-export type Phase = 'setup' | 'active' | 'ended'
-
-interface SavedGame {
-  phase: Phase
-  templateXml: string
-  report: ReportState
-  ruleset: GameRuleset
-  clock: Clock
-  savedAt: number
-}
+export type { Phase }
 
 const DEFAULT_RULESET: GameRuleset = {
   PeriodNum: 3, PeriodLengthSek: 1200, OvertimeNum: 1, OvertimeLengthSek: 300, ShootoutShots: 5, Name: '3x20',
 }
 
+/** What the app asks the user when the server already has a session for a game they open. */
+export interface ResumeChoice {
+  remote: SessionSummary & { state: SavedGame }
+  hasLocal: boolean
+}
+
 /**
  * Everything for one game: the server template, the edited report and the game clock.
  * It is saved in the browser after every change, so a reload or a dead tablet battery
- * doesn't lose the game.
+ * doesn't lose the game, and a started game is synced to the server so another device can pick it up.
+ *
+ * `resume`: open the saved session without asking (coming from the session list).
  */
-export function useGame(gameId: number) {
-  const key = `game:${gameId}`
+export function useGame(gameId: number, leagueId: number, resume = false) {
   const loading = ref(true)
   const error = ref('')
   const templateXml = ref('')
@@ -42,24 +36,57 @@ export function useGame(gameId: number) {
   const tick = setInterval(() => (now.value = Date.now()), 250)
   onScopeDispose(() => clearInterval(tick))
 
+  /** Set when the server has a session that may be newer than ours and the user has to pick. */
+  const choice = ref<ResumeChoice | null>(null)
+
+  function apply(saved: SavedGame) {
+    phase.value = saved.phase ?? 'setup'
+    templateXml.value = saved.templateXml
+    report.value = saved.report
+    ruleset.value = saved.ruleset
+    Object.assign(clock, saved.clock)
+  }
+
+  async function startFresh() {
+    const data = await api.game(gameId)
+    phase.value = 'setup'
+    templateXml.value = data.templateXml
+    report.value = data.report
+    ruleset.value = data.gameRuleset ?? DEFAULT_RULESET
+    Object.assign(clock, { period: 1, elapsed: 0, runningSince: null })
+  }
+
+  /** The server's copy, or null when there is none or we cannot reach it (then the browser copy rules). */
+  async function fetchRemote() {
+    if (navigator.onLine === false) return null
+    const abort = new AbortController()
+    const timeout = setTimeout(() => abort.abort(), 4000)
+    try {
+      return await api.session(gameId, abort.signal)
+    } catch {
+      return null
+    } finally {
+      clearTimeout(timeout)
+    }
+  }
+
   async function load(fresh = false) {
     loading.value = true
     error.value = ''
-    const saved = fresh ? null : storage.getJson<SavedGame>(key)
+    choice.value = null
     try {
-      if (saved) {
-        phase.value = saved.phase ?? 'setup'
-        templateXml.value = saved.templateXml
-        report.value = saved.report
-        ruleset.value = saved.ruleset
-        Object.assign(clock, saved.clock)
+      const local = fresh ? null : readLocal(gameId)
+      const remote = fresh ? null : await fetchRemote()
+      if (remote && (!local || remote.savedAt > local.savedAt)) {
+        // Somewhere (maybe another device) this game was worked on more recently than here.
+        if (resume) apply(remote.state)
+        else choice.value = { remote, hasLocal: !!local }
+      } else if (local) {
+        apply(local)
+        if (!remote && local.phase !== 'setup') markDirty(gameId) // the server may not have it yet
+        else if (remote && remote.savedAt < local.savedAt) markDirty(gameId)
       } else {
-        const data = await api.game(gameId)
-        phase.value = 'setup'
-        templateXml.value = data.templateXml
-        report.value = data.report
-        ruleset.value = data.gameRuleset ?? DEFAULT_RULESET
-        Object.assign(clock, { period: 1, elapsed: 0, runningSince: null })
+        await startFresh()
       }
     } catch (e) {
       error.value = (e as Error).message
@@ -68,13 +95,46 @@ export function useGame(gameId: number) {
     }
   }
 
+  /** Answer to `choice`: carry on with the server's session, or throw it away and begin again. */
+  async function resolveChoice(useRemote: boolean) {
+    const pending = choice.value
+    if (!pending) return
+    choice.value = null
+    if (useRemote) {
+      apply(pending.remote.state)
+      return
+    }
+    loading.value = true
+    try {
+      await api.deleteSession(gameId)
+      removeLocal(gameId)
+      clearDirty(gameId)
+      await startFresh()
+    } catch (e) {
+      error.value = (e as Error).message
+    } finally {
+      loading.value = false
+    }
+  }
+
+  /** Take over the server's (newer) version while working, after another device saved. */
+  async function adoptRemote() {
+    const remote = await fetchRemote()
+    if (remote) apply(remote.state)
+  }
+
   function save() {
-    if (!report.value) return
-    storage.setJson(key, {
-      phase: phase.value, templateXml: templateXml.value, report: report.value, ruleset: ruleset.value, clock: { ...clock }, savedAt: Date.now(),
-    } satisfies SavedGame)
+    if (!report.value || choice.value) return
+    const saved: SavedGame = {
+      phase: phase.value, templateXml: templateXml.value, report: report.value, ruleset: ruleset.value,
+      clock: { ...clock }, savedAt: Date.now(), leagueId, userId: currentUser.value?.id,
+    }
+    writeLocal(gameId, saved)
+    if (saved.phase !== 'setup') schedulePush(gameId)
   }
   watch([report, clock, phase], save, { deep: true })
+  // Leaving the screen: send what is still waiting right away.
+  onScopeDispose(() => { if (report.value && phase.value !== 'setup') pushNow(gameId) })
 
   // --- clock ---
   const regularPeriods = computed(() => ruleset.value.PeriodNum)
@@ -177,14 +237,16 @@ export function useGame(gameId: number) {
     return p ? `${p.lastname} ${p.firstname}`.trim() : ''
   }
 
-  function resetFromServer() {
-    storage.remove(key)
+  async function resetFromServer() {
+    removeLocal(gameId)
+    clearDirty(gameId)
+    await api.deleteSession(gameId).catch(() => { /* offline: the old session stays on the server */ })
     return load(true)
   }
 
   return {
     loading, error, phase, templateXml, ruleset, report, clock,
-    load, resetFromServer,
+    choice, load, resolveChoice, adoptRemote, resetFromServer,
     totalPeriods, periodLength, periodStart, periodLabel, periodShort, periodOf,
     elapsedInPeriod, remainingInPeriod, gameTime, running, startClock, stopClock, setPeriod, setGameTime, adjustClock, resetClock,
     score, byTime, addGoal, updateGoal, updatePenalty, removeGoal, addPenalty, removePenalty, lineup, playerName,

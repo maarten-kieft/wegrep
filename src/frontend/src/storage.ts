@@ -23,6 +23,19 @@ export const storage = {
       /* ignore */
     }
   },
+  /** All stored keys (without the prefix) that start with the given text. */
+  keys(prefix: string): string[] {
+    try {
+      const found: string[] = []
+      for (let i = 0; i < localStorage.length; i++) {
+        const k = localStorage.key(i)
+        if (k?.startsWith(PREFIX + prefix)) found.push(k.slice(PREFIX.length))
+      }
+      return found
+    } catch {
+      return []
+    }
+  },
   getJson<T>(key: string): T | null {
     const raw = this.get(key)
     if (!raw) return null

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { LogOut, Shield, User } from 'lucide-vue-next'
+import { ClipboardList, LogOut, Shield, User } from 'lucide-vue-next'
 import { ref } from 'vue'
 import { currentUser, isAdmin, signOut } from '../auth'
 
@@ -32,6 +32,9 @@ function logout() {
             <div class="font-medium">{{ currentUser.firstname }} {{ currentUser.lastname }}</div>
             <div class="text-muted-foreground truncate">{{ currentUser.email }}</div>
           </div>
+          <RouterLink to="/sessions" class="w-full flex items-center gap-2 px-3 py-2 text-sm rounded-md hover:bg-accent/50" @click="open = false">
+            <ClipboardList class="w-4 h-4" /> Mijn wedstrijden
+          </RouterLink>
           <button type="button"
             class="w-full flex items-center gap-2 px-3 py-2 text-sm rounded-md hover:bg-accent/50 cursor-pointer" @click="logout">
             <LogOut class="w-4 h-4" /> Uitloggen

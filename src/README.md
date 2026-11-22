@@ -33,7 +33,10 @@ contents of `backend/public/` to that folder and `lib/`, `data/`, `config.php` o
 `public/../`). If the server needs it, add `RewriteBase /sheet/` to `.htaccess`.
 
 The app is a PWA: on a phone use "Add to Home Screen" and it opens full screen like a native app.
-Games in progress are kept in the browser, so a reload or a closed tab loses nothing.
+Games in progress are kept in the browser, so a reload or a closed tab loses nothing. Once a game is started it is
+also saved to the database (one session per user and game, newest save wins), so it can be continued on another
+device: the app asks whether to continue the existing session or start a new one, which removes the old one. When
+there is no connection the browser copy is used and uploaded later. "Mijn wedstrijden" in the user menu lists them.
 
 ## How it talks to hockeydata
 
