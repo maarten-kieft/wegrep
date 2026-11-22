@@ -74,6 +74,8 @@ export interface ReportState {
   penalties: Penalty[]
   shots: Record<string, Shots>
   livetime: string
+  /** Sent along when building the XML: EGREP writes the period settings into the report. */
+  ruleset?: GameRuleset
 }
 
 export interface GameRuleset {

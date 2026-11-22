@@ -169,7 +169,8 @@ final class GameReport
             }
         }
 
-        $now = date('j-n-Y H:i:s');
+        // dd/mm/yyyy hh:mm:ss, like EGREP writes it.
+        $now = date('d/m/Y H:i:s');
 
         // Goals, numbered per team in time order.
         foreach (['home' => 'goalsA', 'away' => 'goalsB'] as $side => $tag) {
@@ -226,6 +227,8 @@ final class GameReport
         if (isset($state['livetime'])) {
             self::set($doc, $xp, $game, 'livetime', (string) $state['livetime']);
         }
+
+        EgrepLayout::apply($doc, is_array($state['ruleset'] ?? null) ? $state['ruleset'] : null);
 
         return $doc->saveXML();
     }

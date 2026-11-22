@@ -94,18 +94,24 @@ final class HockeyDataClient
 
     /**
      * Uploads the report. status 1 = live update, 3 = final (completed).
-     * The body is built exactly like EGREP does it: values are NOT url-encoded.
-     * The server is used to that, so we keep it byte-for-byte the same.
+     * The body is built exactly like EGREP does it: the values are NOT url-encoded (a capture of a real EGREP
+     * upload confirms this), and the fields come in the same order, including errors=null.
      *
      * @return array{Status:string,SmsReturnCode:string}
      */
     public function upload(int $gameId, string $payload, int $status, string $username, string $blueCode = '', string $redCode = ''): array
     {
-        $body = "gameId={$gameId}&serializedData={$payload}&status={$status}&uploadUsername={$username}"
-            . "&egrepVersion={$this->config['egrep_version']}&blueCode={$blueCode}&redCode={$redCode}&jsonEnabled=1";
-        $response = $this->request('POST', $this->url('ReceiveUploadedGameReport'), $body, 'application/x-www-form-urlencoded');
+        $response = $this->request('POST', $this->url('ReceiveUploadedGameReport'), self::uploadBody(
+            $gameId, $payload, $status, $username, $this->config['egrep_version'], $blueCode, $redCode
+        ), 'application/x-www-form-urlencoded');
         $json = $this->json($response);
         return ['Status' => (string) ($json['Status'] ?? ''), 'SmsReturnCode' => (string) ($json['SmsReturnCode'] ?? '')];
+    }
+
+    public static function uploadBody(int $gameId, string $payload, int $status, string $username, string $egrepVersion, string $blueCode = '', string $redCode = ''): string
+    {
+        return "gameId={$gameId}&serializedData={$payload}&status={$status}&uploadUsername={$username}"
+            . "&egrepVersion={$egrepVersion}&blueCode={$blueCode}&redCode={$redCode}&errors=null&jsonEnabled=1";
     }
 
     private function get(string $method, array $query): string

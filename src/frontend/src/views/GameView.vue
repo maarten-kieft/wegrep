@@ -78,7 +78,7 @@ async function sendLive() {
   if (!report.value) return
   try {
     const keeper = report.value.officials.find((o) => o.function.toLowerCase() === 'scorekeeper')
-    const res = await api.upload(props.gameId, game.templateXml.value, structuredClone(toRaw(report.value)), 1,
+    const res = await api.upload(props.gameId, game.templateXml.value, { ...structuredClone(toRaw(report.value)), ruleset: structuredClone(toRaw(game.ruleset.value)) }, 1,
       keeper ? `${keeper.lastname} ${keeper.firstname}`.trim() : '')
     liveStatus.value = res.Status === '1' ? `Live update ${new Date().toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })}` : `Server status ${res.Status}`
   } catch (e) {

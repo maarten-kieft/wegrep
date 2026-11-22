@@ -30,7 +30,7 @@ const scorekeeper = computed(() => {
   const o = props.game.report.value?.officials.find((x) => x.function.toLowerCase() === 'scorekeeper')
   return o ? `${o.lastname} ${o.firstname}`.trim() : ''
 })
-const state = () => structuredClone(toRaw(props.game.report.value!))
+const state = () => ({ ...structuredClone(toRaw(props.game.report.value!)), ruleset: structuredClone(toRaw(props.game.ruleset.value)) })
 const tie = computed(() => props.game.score.value.home === props.game.score.value.away)
 
 async function check() {
@@ -131,7 +131,8 @@ async function upload() {
         <input v-model="blueCode" class="field" placeholder="Blue code (optional)" />
         <input v-model="redCode" class="field" placeholder="Red code (optional)" />
       </div>
-      <button v-if="!confirming" :class="btn('default', 'lg', 'w-full h-12 font-semibold')" :disabled="busy" @click="confirming = true">
+      <p v-if="!scorekeeper" class="text-sm text-warning">Fill in the scorekeeper (officials, in the game setup) first: EGREP always sends their name with the upload.</p>
+      <button v-if="!confirming" :class="btn('default', 'lg', 'w-full h-12 font-semibold')" :disabled="busy || !scorekeeper" @click="confirming = true">
         Submit Game Sheet</button>
       <div v-else class="rounded-lg border border-destructive/50 p-3 space-y-3">
         <p class="text-sm">This sends the official game sheet ({{ game.score.value.home }}–{{ game.score.value.away }}) to hockeydata.
