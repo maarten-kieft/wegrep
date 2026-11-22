@@ -4,6 +4,7 @@ declare(strict_types=1);
 use Wegrep\Auth\AdminService;
 use Wegrep\Auth\AuthService;
 use Wegrep\Auth\Authenticator;
+use Wegrep\Auth\Role;
 use Wegrep\Http\ApiException;
 use Wegrep\Mail\Mailer;
 use Wegrep\Storage\UserStore;
@@ -167,12 +168,12 @@ test('only an approved user passes the approval check, only an administrator the
 
     $asPiet = new Authenticator($f->users, JWT_SECRET, $f->now);
     $asPiet->requireUser(['HTTP_AUTHORIZATION' => 'Bearer ' . $asPiet->issueToken($piet)]);
-    assertSame(403, assertThrows(ApiException::class, fn() => $asPiet->requireApproved())->status);
+    assertSame(403, assertThrows(ApiException::class, fn() => $asPiet->requireRole(Role::User))->status);
 
     (new AdminService($f->users))->setRole($boss, (int) $piet['id'], 'user');
     $asPiet->requireUser(['HTTP_AUTHORIZATION' => 'Bearer ' . $asPiet->issueToken($piet)]);
-    assertSame('user', $asPiet->requireApproved()['role']);
-    assertSame(403, assertThrows(ApiException::class, fn() => $asPiet->requireAdmin())->status);
+    assertSame('user', $asPiet->requireRole(Role::User, Role::Administrator)['role']);
+    assertSame(403, assertThrows(ApiException::class, fn() => $asPiet->requireRole(Role::Administrator))->status);
 });
 
 test('a token gets you in, is renewed after a day and dies with the account', function () {

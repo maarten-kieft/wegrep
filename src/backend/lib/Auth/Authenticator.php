@@ -63,21 +63,20 @@ final class Authenticator
         return $this->user ?? throw new ApiException('Niet ingelogd', 401);
     }
 
-    /** The signed-in user must have been approved (has a role). */
-    public function requireApproved(): array
+    /**
+     * The signed-in user must have one of these roles. An account without a role is not approved yet.
+     *
+     * @throws ApiException 403
+     */
+    public function requireRole(Role ...$roles): array
     {
         $user = $this->user();
-        if ($user['role'] === null) {
+        $role = Role::of($user);
+        if ($role === null) {
             throw new ApiException('Je account wacht nog op goedkeuring door een beheerder', 403);
         }
-        return $user;
-    }
-
-    public function requireAdmin(): array
-    {
-        $user = $this->user();
-        if ($user['role'] !== 'administrator') {
-            throw new ApiException('Alleen voor beheerders', 403);
+        if (!in_array($role, $roles, true)) {
+            throw new ApiException('Je hebt hier geen toegang toe', 403);
         }
         return $user;
     }

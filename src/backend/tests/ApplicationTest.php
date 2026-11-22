@@ -2,7 +2,7 @@
 declare(strict_types=1);
 
 use Wegrep\Auth\Authenticator;
-use Wegrep\Http\Access;
+use Wegrep\Auth\Role;
 use Wegrep\Http\ApiException;
 use Wegrep\Http\Application;
 use Wegrep\Http\Endpoints;
@@ -27,11 +27,11 @@ test('the route table: only these routes are open, and everything under /admin i
     $app = new Application(Endpoints::create(appConfig(), appRoot()));
     $open = [];
     foreach ($app->router()->routes() as $route) {
-        if ($route->access === Access::Anyone) {
+        if (!$route->signedIn) {
             $open[] = $route->method . ' ' . $route->pattern;
         }
         if (str_starts_with($route->pattern, '/admin/')) {
-            assertTrue($route->access === Access::Admin, $route->pattern);
+            assertSame([Role::Administrator], $route->roles, $route->pattern);
         }
     }
     sort($open);
@@ -40,7 +40,7 @@ test('the route table: only these routes are open, and everything under /admin i
 
 test('only /auth/me may be used by an account that is not approved yet', function () {
     $app = new Application(Endpoints::create(appConfig(), appRoot()));
-    $account = array_filter($app->router()->routes(), fn($r) => $r->access === Access::Account);
+    $account = array_filter($app->router()->routes(), fn($r) => $r->signedIn && $r->roles === null);
     assertSame(['/auth/me'], array_values(array_map(fn($r) => $r->pattern, $account)));
 });
 

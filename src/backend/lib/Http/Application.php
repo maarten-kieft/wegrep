@@ -33,13 +33,10 @@ final class Application
         [$route, $params] = $this->router->match($method, $path);
         $auth = $this->endpoints->authenticator;
 
-        if ($route->access !== Access::Anyone) {
+        if ($route->signedIn) {
             $auth->requireUser($server);
-            if ($route->access === Access::Approved || $route->access === Access::Admin) {
-                $auth->requireApproved();
-            }
-            if ($route->access === Access::Admin) {
-                $auth->requireAdmin();
+            if ($route->roles !== null) {
+                $auth->requireRole(...$route->roles);
             }
         }
         return ($route->handler)(...$params);

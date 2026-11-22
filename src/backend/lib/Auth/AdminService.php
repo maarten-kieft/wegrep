@@ -9,8 +9,6 @@ use Wegrep\Storage\UserStore;
 /** What administrators can do with accounts: see them, approve them / change their role. */
 final class AdminService
 {
-    public const ROLES = ['user', 'administrator'];
-
     public function __construct(private readonly UserStore $users)
     {
     }
@@ -32,7 +30,7 @@ final class AdminService
     /** Give an account a role. For an account that waits for approval this is the approval. */
     public function setRole(array $actor, int $id, string $role): array
     {
-        if (!in_array($role, self::ROLES, true)) {
+        if (Role::tryFrom($role) === null) {
             throw new ApiException('Onbekende rol');
         }
         $user = $this->users->find($id) ?? throw new ApiException('Gebruiker niet gevonden', 404);
