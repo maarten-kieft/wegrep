@@ -3,7 +3,7 @@ declare(strict_types=1);
 
 namespace Wegrep\Sessions;
 
-use Wegrep\Db\Database;
+use Wegrep\Storage\Database;
 use Wegrep\Http\ApiException;
 
 /**

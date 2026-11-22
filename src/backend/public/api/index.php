@@ -10,7 +10,7 @@ use Wegrep\Auth\AdminService;
 use Wegrep\Auth\AuthService;
 use Wegrep\Auth\Authenticator;
 use Wegrep\Auth\UserStore;
-use Wegrep\Db\Database;
+use Wegrep\Storage\Database;
 use Wegrep\HockeyData\HockeyDataClient;
 use Wegrep\Http\ApiException;
 use Wegrep\Http\Controllers\AdminController;

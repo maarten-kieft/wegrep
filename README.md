@@ -102,6 +102,9 @@ src/
       HockeyData/      hockeydata LOS6 client and the reader for its .NET BinaryFormatter answers
       GameReport/      EGREP game report XML and the [HD] encryption around it
       Clubs/           ijshockey.nl feed (logos + schedule) and the club filter
+      Auth/            login codes, JWT, users and the admin actions
+      Sessions/        saved game sessions (per user and game)
+      Storage/         MySQL connection and Migrations/ (one numbered file per schema change, run automatically)
     data/              penalty codes, and the club logo cache (logo_cache/, gitignored)
     config.php         settings without secrets
   frontend/            Vue source: views/, components/, gameStore.ts (game state), api.ts (calls to /api)

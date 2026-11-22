@@ -21,7 +21,7 @@ function skip(string $why): never
  * Set WEGREP_TEST_DB_HOST (and _USER, _PASSWORD) to run them, e.g. against the compose db with root.
  * Without it those tests are skipped.
  */
-function testDatabase(): Wegrep\Db\Database
+function testDatabase(): Wegrep\Storage\Database
 {
     $host = getenv('WEGREP_TEST_DB_HOST') ?: skip('WEGREP_TEST_DB_HOST not set');
     $user = getenv('WEGREP_TEST_DB_USER') ?: 'root';
@@ -30,7 +30,7 @@ function testDatabase(): Wegrep\Db\Database
     $admin = new PDO("mysql:host=$host;charset=utf8mb4", $user, $pass, [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]);
     $admin->exec("DROP DATABASE IF EXISTS $name");
     $admin->exec("CREATE DATABASE $name CHARACTER SET utf8mb4");
-    return new Wegrep\Db\Database(['db_host' => $host, 'db_port' => 3306, 'db_name' => $name, 'db_user' => $user, 'db_password' => $pass]);
+    return new Wegrep\Storage\Database(['db_host' => $host, 'db_port' => 3306, 'db_name' => $name, 'db_user' => $user, 'db_password' => $pass]);
 }
 
 function test(string $name, callable $fn): void
