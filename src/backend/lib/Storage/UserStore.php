@@ -1,10 +1,9 @@
 <?php
 declare(strict_types=1);
 
-namespace Wegrep\Auth;
+namespace Wegrep\Storage;
 
 use PDO;
-use Wegrep\Storage\Database;
 
 /** Users and their one-time login codes. All times are UTC. */
 final class UserStore

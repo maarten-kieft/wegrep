@@ -1,9 +1,9 @@
 <?php
 declare(strict_types=1);
 
-use Wegrep\Auth\UserStore;
 use Wegrep\Http\ApiException;
 use Wegrep\Sessions\SessionService;
+use Wegrep\Storage\UserStore;
 
 /** @return array{SessionService, int, int} the service and the ids of two users */
 function sessionFixture(): array

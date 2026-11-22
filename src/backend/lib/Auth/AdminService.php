@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace Wegrep\Auth;
 
 use Wegrep\Http\ApiException;
+use Wegrep\Storage\UserStore;
 
 /** What administrators can do with accounts: see them, approve them / change their role. */
 final class AdminService

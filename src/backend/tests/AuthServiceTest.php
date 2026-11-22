@@ -4,9 +4,9 @@ declare(strict_types=1);
 use Wegrep\Auth\AdminService;
 use Wegrep\Auth\AuthService;
 use Wegrep\Auth\Authenticator;
-use Wegrep\Auth\UserStore;
 use Wegrep\Http\ApiException;
 use Wegrep\Mail\Mailer;
+use Wegrep\Storage\UserStore;
 
 /** A fresh service on an empty database, a mailbox that records what was sent and a clock we can move. */
 function authFixture(array $extraConfig = []): object

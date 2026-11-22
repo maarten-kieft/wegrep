@@ -5,6 +5,7 @@ namespace Wegrep\Auth;
 
 use Wegrep\Http\ApiException;
 use Wegrep\Mail\Mailer;
+use Wegrep\Storage\UserStore;
 
 /** Registration and passwordless login: a 6 digit code (also in a link) that works once for 15 minutes. */
 final class AuthService

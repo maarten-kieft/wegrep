@@ -5,6 +5,7 @@ namespace Wegrep\Auth;
 
 use Wegrep\Http\ApiException;
 use Wegrep\Http\Request;
+use Wegrep\Storage\UserStore;
 
 /**
  * Turns the "Authorization: Bearer <jwt>" header into the signed-in user. The token only says
