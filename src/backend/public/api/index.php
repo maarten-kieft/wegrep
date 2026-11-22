@@ -14,17 +14,7 @@ use Wegrep\Http\Controllers\MetaController;
 use Wegrep\Http\Router;
 
 $root = dirname(__DIR__, 2);
-require $root . '/lib/Clubs/ClubFilter.php';
-require $root . '/lib/Clubs/IjshockeyFeed.php';
-require $root . '/lib/GameReport/GameReport.php';
-require $root . '/lib/GameReport/HdCrypt.php';
-require $root . '/lib/HockeyData/HockeyDataClient.php';
-require $root . '/lib/HockeyData/NrbfReader.php';
-require $root . '/lib/Http/ApiException.php';
-require $root . '/lib/Http/Router.php';
-require $root . '/lib/Http/Controllers/GameController.php';
-require $root . '/lib/Http/Controllers/LeagueController.php';
-require $root . '/lib/Http/Controllers/MetaController.php';
+require $root . '/lib/autoload.php';
 
 $config = require $root . '/config.php';
 header('Content-Type: application/json; charset=utf-8');

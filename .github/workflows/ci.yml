@@ -1,0 +1,81 @@
+name: CI
+
+# Pull requests into main: run all checks.
+# Pushes to main (a merged PR): run all checks, then deploy to the SFTP server.
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  backend:
+    name: Backend (PHP lint + tests)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          extensions: pdo_mysql, openssl, zlib
+      - name: Lint
+        run: find src/backend -name '*.php' -print0 | xargs -0 -n1 php -l > /dev/null
+      - name: Tests
+        run: php tests/run.php
+        working-directory: src/backend
+
+  frontend:
+    name: Frontend (typecheck, tests, build)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: src/frontend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: src/frontend/package-lock.json
+      - run: npm ci
+      - run: npm run typecheck
+      - run: npm test
+      - run: npm run build
+      - name: Keep the built app for the deploy
+        uses: actions/upload-artifact@v4
+        with:
+          name: backend-with-spa
+          path: src/backend
+          include-hidden-files: true
+          retention-days: 1
+
+  deploy:
+    name: Deploy to SFTP
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    needs: [backend, frontend]
+    runs-on: ubuntu-latest
+    environment: production
+    concurrency:
+      group: deploy
+      cancel-in-progress: false
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: backend-with-spa
+          path: deploy
+      - name: Leave out what does not belong on the server
+        # .env and the logo cache live on the server and must survive a deploy.
+        run: rm -rf deploy/tests deploy/data/logo_cache deploy/.env
+      - name: Upload over SFTP
+        uses: wlixcc/SFTP-Deploy-Action@v1.2.4
+        with:
+          server: ${{ secrets.SFTP_HOST }}
+          port: ${{ secrets.SFTP_PORT || '22' }}
+          username: ${{ secrets.SFTP_USERNAME }}
+          password: ${{ secrets.SFTP_PASSWORD }}
+          sftp_only: true
+          local_path: ./deploy/*
+          remote_path: ${{ secrets.SFTP_REMOTE_PATH }}

@@ -63,6 +63,31 @@ cd src/frontend
 npm run typecheck
 ```
 
+### Tests
+
+```bash
+cd src/frontend && npm test                                  # Vitest
+docker run --rm -v "${PWD}/src/backend:/app" -w /app php:8.3-cli php tests/run.php   # PHP tests (PowerShell)
+```
+
+The PHP tests have no dependencies: `src/backend/tests/*Test.php` register tests with `test('name', fn)` and
+`tests/run.php` runs them.
+
+### Pipeline (GitHub Actions)
+
+`.github/workflows/ci.yml` runs on every pull request to `main` and on every push to `main`: PHP lint and tests,
+frontend typecheck, tests and build. A push to `main` (a merge) then deploys `src/backend/` including the built app to
+the server over SFTP. `.env` and `data/logo_cache/` are never overwritten. Set these as secrets in GitHub
+(Settings > Secrets and variables > Actions, ideally on an environment called `production`):
+
+| Secret | Value |
+|---|---|
+| `SFTP_HOST` | server name |
+| `SFTP_PORT` | optional, default 22 |
+| `SFTP_USERNAME` | login |
+| `SFTP_PASSWORD` | password |
+| `SFTP_REMOTE_PATH` | folder on the server that is the project root (contains `public/`, `lib/`, `config.php`) |
+
 ## Project layout
 
 ```
@@ -118,4 +143,3 @@ Use the "Voorbeeld XML" button in a game to see exactly what would be uploaded, 
 - Keep sessions: It should be possible to view which game report was started and everything is saved in both local session as database. Initially in local storage and synced to the backend. (if the interconnection interupts)
 - Make sure the applications keep running if the internet connection drops. So storing stat ein local storage, run the application as single page. 
 - Remove the claude co pilot from the github history
-- Maak een github pipeline die controlleer of alle tests het doen bij een merge request en op main. Bij main moet hij ook deployen naar een sftp omgeving. Credentials lever ik laat via github aan. 
