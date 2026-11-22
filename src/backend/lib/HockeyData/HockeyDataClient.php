@@ -162,6 +162,10 @@ final class HockeyDataClient
             }
             $error = $result === false ? 'request failed' : '';
         }
+        if (!empty($this->config['debug_hockeydata'])) {
+            error_log("hockeydata >>> $method $url" . ($contentType ? "\nContent-Type: $contentType" : '') . ($body !== null ? "\n\n$body" : ''));
+            error_log("hockeydata <<< $code $error\n\n" . substr((string) $result, 0, 5000));
+        }
         if ($result === false || $code >= 400 || $code === 0) {
             // What hockeydata actually answered, for the server log (the app only gets the short message).
             error_log("hockeydata $method $url answered $code $error: " . substr((string) $result, 0, 1000));

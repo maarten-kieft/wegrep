@@ -25,6 +25,8 @@ return [
     'league_password' => getenv('WEGREP_LEAGUE_PASSWORD') ?: '',
     // Sent along with every upload, like EGREP does ("e-grep_v" + version). Not a secret.
     'egrep_version' => getenv('WEGREP_EGREP_VERSION') ?: 'e-grep_v21.0.1.1957',
+    // Write every request to hockeydata and its answer to the server log (the full body, so only for debugging).
+    'debug_hockeydata' => filter_var(getenv('WEGREP_DEBUG_HOCKEYDATA') ?: 'false', FILTER_VALIDATE_BOOLEAN),
     // Uploading writes the official game report. Keep this off until you have tested.
     'upload_enabled' => filter_var(getenv('WEGREP_UPLOAD_ENABLED') ?: 'false', FILTER_VALIDATE_BOOLEAN),
     // MySQL. The tables are created automatically on first use (see lib/Storage/Migrations).
