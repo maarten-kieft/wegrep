@@ -138,5 +138,22 @@ Use the "Voorbeeld XML" button in a game to see exactly what would be uploaded, 
 
 ## TODO
 
-- [ ] Check whether the Windows EGREP accepts a downloaded game report. The game screen can now download the report as plain XML or as an [HD] file (see `UploadPanel.vue`); try importing them in EGREP and adjust the format if needed (and drop the "still being checked" note in the panel).
-- Remove the claude co pilot from the github history
+Status: **te controleren** = gebouwd en door mij getest, jij moet het nog nakijken. **open** = nog niet af.
+
+### Te controleren
+
+- **Te controleren** E-mail login zonder wachtwoord: account aanmaken (e-mail, voor- en achternaam), code van 6 cijfers per mail (ook als link), één keer te gebruiken, 15 minuten geldig, JWT-token. Lokaal lees je de mail in Mailpit, http://localhost:8025.
+- **Te controleren** Goedkeuring door een beheerder: een nieuw account ziet een wachtscherm, alle beheerders krijgen een mail, goedkeuren op `/admin` (link "Beheer" rechtsboven naast de terugknop).
+- **Te controleren** Beheerpagina: rol wijzigen (gebruiker / beheerder) en gebruikers verwijderen of afwijzen.
+- **Te controleren** Sessies bewaren: gestarte wedstrijden staan in de browser en in de database, de pagina "Mijn wedstrijden" (gebruikersmenu), bij een bestaande sessie de keuze doorgaan of nieuw beginnen.
+- **Te controleren** Offline blijven werken: geen inlogscherm zonder verbinding, een lopende wedstrijd werkt door en synchroniseert later, "Doorgaan met" op het startscherm. Zie ook het open punt over de koude start hieronder.
+- **Te controleren** GitHub pipeline: checks bij een PR en op main, op main ook deploy naar SFTP. Nog nooit op GitHub gedraaid.
+- **Te controleren** Download van het wedstrijdverslag als XML of [HD]-bestand (knoppen onderaan het wedstrijdscherm na "End game").
+
+### Open
+
+- **Open** GitHub-secrets aanmaken voor de deploy: `SFTP_HOST`, `SFTP_PORT (optioneel)`, `SFTP_USERNAME`, `SFTP_PASSWORD`, `SFTP_REMOTE_PATH`. Vraag: wil je inloggen met een SSH-sleutel in plaats van een wachtwoord? Dan pas ik de workflow aan.
+- **Open** Productie-instellingen op de server: `WEGREP_DB_*`, `WEGREP_JWT_SECRET`, `WEGREP_ADMIN_EMAIL`, `WEGREP_APP_URL`, `WEGREP_MAIL_FROM` (zie `src/.env.example`). Vraag: kan de hosting environment variables zetten, of gebruiken we een `.env` naast `config.php`?
+- **Open** Kijken of de Windows EGREP het gedownloade verslag accepteert (XML of [HD]). Vraag: welk van de twee werkt? Pas daarna haal ik de "nog niet gecontroleerd"-tekst uit het paneel weg.
+- **Open** Offline koude start (app openen zonder verbinding) testen op een echt apparaat; in mijn testbrowser kon de service worker niet geregistreerd worden.
+- **Open** Claude als co-author uit de git-historie halen (9 commits). Vraag: mag ik de historie herschrijven en wil je zelf force pushen? Dit vraagt dat iedereen daarna opnieuw kloont.
