@@ -69,6 +69,7 @@ try {
         ->add('GET',  '/auth/me',                $auth->me(...))
         ->add('GET',  '/admin/users',            $admin->users(...))
         ->add('PATCH', '/admin/users/(\d+)',     $admin->setRole(...))
+        ->add('DELETE', '/admin/users/(\d+)',    $admin->remove(...))
         ->add('GET',  '/leagues',                $leagues->leagues(...))
         ->add('GET',  '/leagues/(\d+)/games',    $leagues->games(...))
         ->add('GET',  '/games/(\d+)',            $games->show(...))

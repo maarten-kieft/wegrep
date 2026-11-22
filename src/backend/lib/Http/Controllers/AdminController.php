@@ -30,4 +30,11 @@ final class AdminController
         }
         return $this->admin->setRole($this->authenticator->user(), (int) $id, $role);
     }
+
+    /** DELETE /admin/users/{id} */
+    public function remove(string $id): array
+    {
+        $this->admin->remove($this->authenticator->user(), (int) $id);
+        return ['ok' => true];
+    }
 }

@@ -43,6 +43,7 @@ export const api = {
   verifyCode: (email: string, code: string) => post<{ token: string; user: User }>('/auth/verify', { email, code }),
   me: () => request<{ user: User }>('/auth/me'),
   adminUsers: () => request<AdminUser[]>('/admin/users'),
+  removeUser: (id: number) => request<{ ok: true }>(`/admin/users/${id}`, { method: 'DELETE' }),
   setRole: (id: number, role: 'user' | 'administrator') =>
     request<User>(`/admin/users/${id}`, { method: 'PATCH', body: JSON.stringify({ role }) }),
   leagues: () => request<League[]>('/leagues'),

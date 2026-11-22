@@ -41,4 +41,14 @@ final class AdminService
         $this->users->setRole($id, $role);
         return Authenticator::publicUser($this->users->find($id));
     }
+
+    /** Remove an account (also how a registration is turned down). Their login codes go with it. */
+    public function remove(array $actor, int $id): void
+    {
+        $this->users->find($id) ?? throw new ApiException('Gebruiker niet gevonden', 404);
+        if ((int) $actor['id'] === $id) {
+            throw new ApiException('Je kunt jezelf niet verwijderen', 400);
+        }
+        $this->users->delete($id);
+    }
 }

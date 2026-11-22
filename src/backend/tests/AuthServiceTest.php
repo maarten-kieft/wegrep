@@ -208,3 +208,19 @@ test('the authenticator refuses to work without a proper secret', function () {
     $e = assertThrows(ApiException::class, fn() => $weak->requireUser(['HTTP_AUTHORIZATION' => 'Bearer x.y.z']));
     assertSame(500, $e->status);
 });
+
+test('an administrator can remove an account, but not their own', function () {
+    $f = authFixture();
+    $f->auth->register('boss@example.com', 'The', 'Boss');
+    $boss = $f->auth->verify('boss@example.com', ($f->lastCode)());
+    $f->auth->register('piet@example.com', 'Piet', 'Puck');
+    $piet = $f->auth->verify('piet@example.com', ($f->lastCode)());
+
+    $admin = new AdminService($f->users);
+    assertSame(400, assertThrows(ApiException::class, fn() => $admin->remove($boss, (int) $boss['id']))->status);
+    assertSame(404, assertThrows(ApiException::class, fn() => $admin->remove($boss, 999))->status);
+
+    $admin->remove($boss, (int) $piet['id']);
+    assertSame(null, $f->users->findByEmail('piet@example.com'));
+    assertSame(1, count($admin->list()));
+});
