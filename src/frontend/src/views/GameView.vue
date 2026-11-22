@@ -16,7 +16,7 @@ import { useGame } from '../gameStore'
 import { meta } from '../meta'
 import { syncConflict, syncTakenOver } from '../sessionSync'
 import { formatTime, nowHHMM } from '../time'
-import { officialsMissing, setupWarnings, validateSetup } from '../validation'
+import { officialsMissing, validateSetup } from '../validation'
 import type { Goal, Penalty, Side } from '../types'
 import { btn, card } from '../ui'
 
@@ -95,7 +95,6 @@ onBeforeUnmount(() => clearInterval(liveTimer))
 // ---- phases ----
 // A game can only be started with players on the sheet of both teams and numbers that can be right.
 const setupProblems = computed(() => (report.value ? validateSetup(report.value, teamName) : []))
-const setupWarns = computed(() => (report.value ? setupWarnings(report.value, teamName) : []))
 function startGame() {
   if (setupProblems.value.length) return
   game.phase.value = 'active'
@@ -193,12 +192,6 @@ async function resetGame() {
             :game-id="gameId" :team-id="gd.teambid ?? ''" />
         </div>
 
-        <div v-if="setupProblems.length || setupWarns.length" :class="[card, 'p-4 space-y-2']">
-          <h3 class="font-semibold">Before you start</h3>
-          <p v-for="(problem, i) in setupProblems" :key="'p' + i" class="text-sm text-destructive">{{ problem }}</p>
-          <p v-for="(warning, i) in setupWarns" :key="'w' + i" class="text-sm text-warning">{{ warning }}</p>
-        </div>
-
         <div :class="[card, 'p-4']">
           <h3 class="font-semibold mb-3">Officials</h3>
           <OfficialsEditor :officials="report.officials" />
@@ -208,7 +201,7 @@ async function resetGame() {
       <div class="fixed bottom-0 left-0 right-0 p-4 pb-[calc(1rem+env(safe-area-inset-bottom))] bg-background border-t border-border">
         <div class="max-w-4xl mx-auto">
           <p v-if="setupProblems.length" class="text-sm text-destructive text-center mb-2" role="alert">
-            {{ setupProblems.length === 1 ? '1 thing' : setupProblems.length + ' things' }} to fix before you can start (see above)</p>
+            {{ setupProblems.length === 1 ? '1 thing' : setupProblems.length + ' things' }} to fix before you can start (listed under the teams)</p>
           <button :class="btn('default', 'lg', 'w-full h-12')" :disabled="setupProblems.length > 0" @click="startGame">Start Game</button>
         </div>
       </div>

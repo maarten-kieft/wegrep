@@ -155,3 +155,16 @@ test('the name prefix of a player is read from the report', function () {
     $xml = str_replace('<name3 />', '<name3>van</name3>', oldLayoutTemplate());
     assertSame('van', GameReport::parse($xml)['players']['home'][0]['prefix']);
 });
+
+test('a player taken off the list is taken off the report, but a missing list leaves the template alone', function () {
+    $state = GameReport::parse(oldLayoutTemplate());
+    $state['players']['home'] = [];
+    $doc = new DOMDocument();
+    $doc->loadXML(GameReport::build(oldLayoutTemplate(), $state));
+    assertSame(0, $doc->getElementsByTagName('playersA')->item(0)->getElementsByTagName('player')->length);
+
+    unset($state['players']);
+    $doc = new DOMDocument();
+    $doc->loadXML(GameReport::build(oldLayoutTemplate(), $state));
+    assertSame(1, $doc->getElementsByTagName('playersA')->item(0)->getElementsByTagName('player')->length);
+});

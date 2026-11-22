@@ -129,11 +129,17 @@ final class GameReport
             foreach ($state['players'][$side] ?? [] as $p) {
                 $byId[(string) $p['id']] = $p;
             }
+            // The list the app sends is the whole roster: someone taken off it is taken off the report too.
+            $authoritative = isset($state['players'][$side]);
+            $removed = [];
             $inTemplate = [];
             foreach ($xp->query("$tag/player", $game) as $el) {
                 $inTemplate[self::text($xp, $el, 'id')] = true;
                 $p = $byId[self::text($xp, $el, 'id')] ?? null;
                 if ($p === null) {
+                    if ($authoritative) {
+                        $removed[] = $el;
+                    }
                     continue;
                 }
                 self::set($doc, $xp, $el, 'jerseynr', (string) ($p['jersey'] ?? ''));
@@ -141,6 +147,10 @@ final class GameReport
                 self::set($doc, $xp, $el, 'position', (string) ($p['position'] ?? ''));
                 self::set($doc, $xp, $el, 'line', (string) ($p['line'] ?? ''));
                 self::set($doc, $xp, $el, 'startingsix', !empty($p['starting']) ? 'Y' : '');
+            }
+
+            foreach ($removed as $el) {
+                $el->parentNode->removeChild($el);
             }
 
             // Players added last minute (EGREP's "Last minute selectie-update"): not in the template, so add them.

@@ -3,12 +3,13 @@ import { Trash2, UserPlus, Users } from 'lucide-vue-next'
 import { computed, ref, watch } from 'vue'
 import type { Player } from '../types'
 import { btn, card } from '../ui'
-import { duplicateJerseys, isDressed, jerseyProblem } from '../validation'
+import { duplicateJerseys, isDressed, jerseyProblem, teamWarnings, validateTeam } from '../validation'
 import AddPlayerModal from './AddPlayerModal.vue'
 
 // Roster comes from hockeydata; here the jersey number, position and captaincy are filled in.
-// Players without a jersey number are not on the game sheet. Someone the coach forgot to select can be
-// added from everybody registered with the club (the "Last minute selectie-update" of the Windows EGREP).
+// Every player needs a number and the team needs one captain before the game can be started; what is
+// still wrong is listed right here. Someone the coach forgot to select can be added from everybody
+// registered with the club (the "Last minute selectie-update" of the Windows EGREP).
 const props = defineProps<{ name: string; label: string; players: Player[]; logo?: string | null; gameId: number; teamId: number | string }>()
 const adding = ref(false)
 const addPlayer = (p: Player) => { if (!props.players.some((x) => x.id === p.id)) props.players.push(p) }
@@ -22,10 +23,15 @@ const sorted = computed(() =>
   [...props.players].sort((a, b) =>
     (ORDER[a.position] ?? 3) - (ORDER[b.position] ?? 3) || a.lastname.localeCompare(b.lastname)))
 const dressed = computed(() => props.players.filter(isDressed).length)
+
+const problems = computed(() => validateTeam(props.players))
+const warnings = computed(() => teamWarnings(props.players))
 const duplicates = computed(() => duplicateJerseys(props.players))
-const wrongNumbers = computed(() => props.players.filter((p) => jerseyProblem(p) !== null))
-const hasProblem = (p: Player) => duplicates.value.has(p.jersey.trim().toUpperCase()) || jerseyProblem(p) !== null
-/** Someone added by mistake can be removed again; people from the lineup of the coach stay. */
+const hasProblem = (p: Player) =>
+  duplicates.value.has(p.jersey.trim().toUpperCase()) || jerseyProblem(p) !== null || (p.position !== 'TO' && p.jersey.trim() === '')
+
+/** A player who is not going to play can be taken off the list, as long as he has no number. */
+const removable = (p: Player) => p.added || (p.position !== 'TO' && p.jersey.trim() === '')
 const remove = (p: Player) => props.players.splice(props.players.indexOf(p), 1)
 </script>
 
@@ -45,9 +51,16 @@ const remove = (p: Player) => props.players.splice(props.players.indexOf(p), 1)
       <span class="text-xs text-muted-foreground ml-auto whitespace-nowrap">{{ label }}</span>
     </div>
 
+    <!-- What has to be fixed for this team before the game can be started. -->
+    <div v-if="problems.length || warnings.length" class="mx-4 mb-3 rounded-lg px-3 py-2 space-y-1"
+      :class="problems.length ? 'bg-destructive/10 border border-destructive/40' : 'bg-warning/10 border border-warning/40'">
+      <p v-for="(problem, i) in problems" :key="'p' + i" class="text-sm text-destructive" role="alert">{{ problem }}</p>
+      <p v-for="(warning, i) in warnings" :key="'w' + i" class="text-sm text-warning">{{ warning }}</p>
+    </div>
+
     <div class="px-4 pb-4 space-y-2">
-      <p v-if="!players.length" class="py-4 text-center text-muted-foreground text-sm">No roster received from hockeydata</p>
-      <div v-for="p in sorted" :key="p.id" class="flex items-center gap-2" :class="{ 'opacity-60': !p.jersey.trim() }">
+      <p v-if="!players.length" class="py-2 text-center text-muted-foreground text-sm">No roster received from hockeydata</p>
+      <div v-for="p in sorted" :key="p.id" class="flex items-center gap-2">
         <input v-model.trim="p.jersey" :inputmode="p.position === 'TO' ? 'text' : 'numeric'" maxlength="3" placeholder="#"
           class="w-14 h-10 rounded-md border bg-input text-foreground text-center font-semibold outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50"
           :class="hasProblem(p) ? 'border-destructive' : 'border-border'" />
@@ -63,12 +76,9 @@ const remove = (p: Player) => props.players.splice(props.players.indexOf(p), 1)
             <option value="">–</option><option value="C">C</option><option value="A">A</option>
           </select>
         </template>
-        <button v-if="p.added" type="button" :class="btn('ghost', 'icon-sm', 'shrink-0')" :aria-label="`Remove ${fullName(p)}`" @click="remove(p)">
+        <button v-if="removable(p)" type="button" :class="btn('ghost', 'icon-sm', 'shrink-0')" :aria-label="`Remove ${fullName(p)}`" @click="remove(p)">
           <Trash2 class="w-4 h-4" /></button>
       </div>
-      <p v-if="duplicates.size" class="text-sm text-destructive pt-1">Duplicate jersey number: {{ [...duplicates].join(', ') }}</p>
-      <p v-for="p in wrongNumbers" :key="'n' + p.id" class="text-sm text-destructive">
-        {{ fullName(p) }}: the number {{ jerseyProblem(p) }}.</p>
       <button type="button" :class="btn('outline', 'default', 'w-full bg-transparent mt-2')" @click="adding = true">
         <UserPlus class="w-4 h-4" /> Add player or official</button>
     </div>

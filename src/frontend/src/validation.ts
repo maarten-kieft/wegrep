@@ -23,33 +23,41 @@ export const duplicateJerseys = (players: Player[]): Set<string> => {
   return new Set([...count].filter(([, n]) => n > 1).map(([j]) => j))
 }
 
-/** What stops the game from being started: nothing on the sheet for a team, or numbers that cannot be right. */
-export function validateSetup(report: ReportState, teamName: (side: Side) => string): string[] {
+const fullName = (p: Player) => `${p.lastname} ${p.firstname}`.trim()
+
+/** What is wrong with the lineup of one team. Empty = fine. */
+export function validateTeam(players: Player[]): string[] {
+  const playing = players.filter((p) => p.position !== 'TO')
+  if (!playing.length) return ['There are no players yet. Add them with "Add player or official".']
+
   const problems: string[] = []
-  for (const side of ['home', 'away'] as const) {
-    const team = teamName(side) || (side === 'home' ? 'Home team' : 'Away team')
-    const players = report.players[side]
-    if (!players.some(isDressed)) {
-      problems.push(`${team}: no players are dressed. Give the players a jersey number, or add them with "Add player or official".`)
-    }
-    const duplicates = duplicateJerseys(players)
-    if (duplicates.size) problems.push(`${team}: jersey number ${[...duplicates].join(', ')} is used more than once.`)
-    for (const p of players) {
-      const problem = jerseyProblem(p)
-      if (problem) problems.push(`${team}: the number of ${p.lastname} ${p.firstname} ${problem}.`)
-    }
+  for (const p of playing) {
+    if (p.jersey.trim() === '') problems.push(`${fullName(p)} has no number. Give a number, or remove the player.`)
   }
+  const duplicates = duplicateJerseys(players)
+  if (duplicates.size) problems.push(`Number ${[...duplicates].join(', ')} is used more than once.`)
+  for (const p of players) {
+    const problem = jerseyProblem(p)
+    if (problem) problems.push(`The number of ${fullName(p)} ${problem}.`)
+  }
+  const captains = playing.filter((p) => isDressed(p) && p.captain === 'C').length
+  if (captains === 0) problems.push('Choose a captain (C).')
+  if (captains > 1) problems.push('Only one captain (C) is allowed.')
   return problems
 }
 
-/** Things worth a look but not blocking: players without a position, as the manual asks to fill it in. */
-export function setupWarnings(report: ReportState, teamName: (side: Side) => string): string[] {
-  const warnings: string[] = []
-  for (const side of ['home', 'away'] as const) {
-    const missing = report.players[side].filter((p) => isDressed(p) && p.position === '').length
-    if (missing) warnings.push(`${teamName(side) || side}: ${missing} dressed ${missing === 1 ? 'player has' : 'players have'} no position (G, D or F).`)
-  }
-  return warnings
+/** Worth a look but not blocking: players without a position, as the manual asks to fill it in. */
+export function teamWarnings(players: Player[]): string[] {
+  const missing = players.filter((p) => isDressed(p) && p.position === '').length
+  return missing ? [`${missing} ${missing === 1 ? 'player has' : 'players have'} no position (G, D or F).`] : []
+}
+
+/** What stops the game from being started: every team needs a valid lineup (see validateTeam). */
+export function validateSetup(report: ReportState, teamName: (side: Side) => string): string[] {
+  return (['home', 'away'] as const).flatMap((side) => {
+    const team = teamName(side) || (side === 'home' ? 'Home team' : 'Away team')
+    return validateTeam(report.players[side]).map((problem) => `${team}: ${problem}`)
+  })
 }
 
 const named = (report: ReportState, fn: string) =>

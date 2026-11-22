@@ -1,15 +1,16 @@
 import { describe, expect, it } from 'vitest'
 import type { Player, ReportState } from './types'
-import { duplicateJerseys, jerseyProblem, setupWarnings, validateSetup, validateSubmit } from './validation'
+import { duplicateJerseys, jerseyProblem, teamWarnings, validateSetup, validateSubmit, validateTeam } from './validation'
 
 const player = (over: Partial<Player> = {}): Player => ({
   id: '1', jersey: '9', lastname: 'Doe', firstname: 'Jane', licensenr: '', birthdate: '', captain: '', position: 'F', line: '1', starting: false, ...over,
 })
+/** A lineup that is fine: numbered players with one captain. */
+const goodTeam = (): Player[] => [player({ captain: 'C' }), player({ id: '2', jersey: '10' })]
 
 const report = (home: Player[], away: Player[]): ReportState => ({
   gamedata: {}, officials: [], players: { home, away }, goals: [], penalties: [], shots: {}, livetime: '',
 })
-
 const names = (side: 'home' | 'away') => (side === 'home' ? 'Cougars' : 'Bulldogs')
 
 describe('jerseyProblem', () => {
@@ -24,7 +25,7 @@ describe('jerseyProblem', () => {
     for (const j of ['HC', 'hc', 'T1', 'T7']) expect(jerseyProblem(player({ position: 'TO', jersey: j }))).toBeNull()
     for (const j of ['AC', 'TM', 'T8', '5']) expect(jerseyProblem(player({ position: 'TO', jersey: j }))).not.toBeNull()
   })
-  it('says nothing about an empty number: that player is just not on the sheet', () => {
+  it('says nothing about an empty number here: validateTeam asks for it', () => {
     expect(jerseyProblem(player({ jersey: '' }))).toBeNull()
   })
 })
@@ -35,27 +36,49 @@ describe('duplicateJerseys', () => {
   })
 })
 
-describe('validateSetup', () => {
-  it('lets a game start when both teams have dressed players', () => {
-    expect(validateSetup(report([player()], [player({ id: '2' })]), names)).toEqual([])
+describe('validateTeam', () => {
+  it('accepts numbered players with exactly one captain', () => {
+    expect(validateTeam(goodTeam())).toEqual([])
   })
-  it('stops a team without any dressed player, also when only officials or players without a number are there', () => {
-    const empty = validateSetup(report([player()], []), names)
-    expect(empty).toHaveLength(1)
-    expect(empty[0]).toContain('Bulldogs')
-    expect(validateSetup(report([player()], [player({ jersey: '' }), player({ id: '2', position: 'TO', jersey: 'HC' })]), names)).toHaveLength(1)
+  it('asks for players when there are none, also when there are only officials', () => {
+    expect(validateTeam([])).toHaveLength(1)
+    expect(validateTeam([player({ position: 'TO', jersey: 'HC' })])).toHaveLength(1)
+  })
+  it('wants a number for every player', () => {
+    const problems = validateTeam([...goodTeam(), player({ id: '3', jersey: '', lastname: 'Roe' })])
+    expect(problems).toEqual(['Roe Jane has no number. Give a number, or remove the player.'])
+  })
+  it('wants exactly one captain', () => {
+    expect(validateTeam([player(), player({ id: '2', jersey: '10' })])).toEqual(['Choose a captain (C).'])
+    expect(validateTeam([player({ captain: 'C' }), player({ id: '2', jersey: '10', captain: 'C' })])).toEqual(['Only one captain (C) is allowed.'])
+  })
+  it('does not count an assistant captain, nor a captain without a number', () => {
+    expect(validateTeam([player({ captain: 'A' }), player({ id: '2', jersey: '', captain: 'C' })])).toContain('Choose a captain (C).')
   })
   it('stops duplicate and impossible numbers', () => {
-    const problems = validateSetup(report([player({ jersey: '9' }), player({ id: '2', jersey: '9' }), player({ id: '3', jersey: 'x' })], [player({ id: '9' })]), names)
+    const problems = validateTeam([player({ captain: 'C' }), player({ id: '2', jersey: '9' }), player({ id: '3', jersey: 'x' })])
     expect(problems.some((p) => p.includes('used more than once'))).toBe(true)
     expect(problems.some((p) => p.includes('Doe Jane'))).toBe(true)
   })
+  it('ignores team officials when counting players and captains', () => {
+    expect(validateTeam([...goodTeam(), player({ id: '9', position: 'TO', jersey: 'T1', captain: 'C' })])).toEqual([])
+  })
 })
 
-describe('setupWarnings', () => {
+describe('teamWarnings', () => {
   it('mentions dressed players without a position, but not players who are not on the sheet', () => {
-    const warnings = setupWarnings(report([player({ position: '' }), player({ id: '2', position: '', jersey: '' })], [player({ id: '3' })]), names)
-    expect(warnings).toEqual(['Cougars: 1 dressed player has no position (G, D or F).'])
+    expect(teamWarnings([player({ position: '' }), player({ id: '2', position: '', jersey: '' })])).toEqual(['1 player has no position (G, D or F).'])
+  })
+})
+
+describe('validateSetup', () => {
+  it('lets a game start when both teams are fine', () => {
+    expect(validateSetup(report(goodTeam(), goodTeam()), names)).toEqual([])
+  })
+  it('names the team in each problem', () => {
+    const problems = validateSetup(report(goodTeam(), []), names)
+    expect(problems).toHaveLength(1)
+    expect(problems[0]).toContain('Bulldogs: ')
   })
 })
 
