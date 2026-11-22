@@ -1,7 +1,7 @@
 import type {
-  GameListItem, GameResponse, League, LogoDict, Meta, PrecheckResult, ReportState, UploadResult,
+  GameListItem, GameResponse, League, LogoDict, Meta, PrecheckResult, ReportState, UploadResult, User,
 } from './types'
-import { storage } from './storage'
+import { getToken, renewToken, signOut } from './auth'
 
 export class ApiError extends Error {
   constructor(message: string, public status: number) {
@@ -10,16 +10,22 @@ export class ApiError extends Error {
 }
 
 async function request<T>(path: string, init: RequestInit = {}): Promise<T> {
+  const token = getToken()
   const res = await fetch(`${import.meta.env.BASE_URL}api${path}`, {
     ...init,
     headers: {
       'Content-Type': 'application/json',
-      'X-App-Password': storage.get('password') ?? '',
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
       ...init.headers,
     },
   })
+  const renewed = res.headers.get('X-Renewed-Token')
+  if (renewed) renewToken(renewed)
   const body = await res.json().catch(() => ({ error: `HTTP ${res.status}` }))
   if (!res.ok) {
+    // The server says our token is no good (expired, account removed): sign out. A wrong login
+    // code is also a 401, but then there is no token yet. No answer at all (offline) never ends up here.
+    if (res.status === 401 && token) signOut()
     throw new ApiError(body.error ?? `HTTP ${res.status}`, res.status)
   }
   return body as T
@@ -30,6 +36,11 @@ const post = <T>(path: string, data: unknown) =>
 
 export const api = {
   meta: () => request<Meta>('/meta'),
+  register: (email: string, firstname: string, lastname: string) =>
+    post<{ ok: true }>('/auth/register', { email, firstname, lastname }),
+  requestCode: (email: string) => post<{ ok: true }>('/auth/code', { email }),
+  verifyCode: (email: string, code: string) => post<{ token: string; user: User }>('/auth/verify', { email, code }),
+  me: () => request<{ user: User }>('/auth/me'),
   leagues: () => request<League[]>('/leagues'),
   logos: () => request<LogoDict>('/logos'),
   games: (leagueId: number, selection: string) =>

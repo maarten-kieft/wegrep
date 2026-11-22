@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ChevronLeft } from 'lucide-vue-next'
 import { asset } from '../ui'
+import UserMenu from './UserMenu.vue'
 
 // "large": the big header of the league/game lists. "small": the game screens, with a back button.
 defineProps<{ variant: 'large' | 'small'; title?: string; subtitle?: string; back?: string }>()
@@ -15,6 +16,7 @@ defineProps<{ variant: 'large' | 'small'; title?: string; subtitle?: string; bac
       class="absolute top-4 left-4 z-20 inline-flex items-center h-8 px-3 rounded-md text-sm font-medium text-white hover:bg-white/20">
       <ChevronLeft class="w-4 h-4 mr-1" /> Back
     </RouterLink>
+    <div class="absolute top-4 right-4 z-20"><UserMenu /></div>
     <div class="relative z-10 flex flex-col items-center justify-center h-full px-4 text-center">
       <div class="flex items-center gap-3 mb-2">
         <svg class="w-10 h-10 text-primary" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -38,7 +40,10 @@ defineProps<{ variant: 'large' | 'small'; title?: string; subtitle?: string; bac
         class="inline-flex items-center h-8 px-3 rounded-md text-sm font-medium text-white hover:bg-white/20">
         <ChevronLeft class="w-4 h-4 mr-1" /> Back
       </RouterLink>
-      <slot name="actions" />
+      <div class="flex items-center gap-1 ml-auto">
+        <slot name="actions" />
+        <UserMenu />
+      </div>
     </div>
     <div class="absolute bottom-4 left-0 right-0 text-center">
       <h1 class="text-xl font-bold text-white">{{ title }}</h1>

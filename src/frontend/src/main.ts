@@ -5,6 +5,8 @@ import HomeView from './views/HomeView.vue'
 import LeaguesView from './views/LeaguesView.vue'
 import GamesView from './views/GamesView.vue'
 import GameView from './views/GameView.vue'
+import LoginView from './views/LoginView.vue'
+import { isSignedIn } from './auth'
 import { ensureLogos } from './logos'
 import './style.css'
 
@@ -15,6 +17,7 @@ ensureLogos()
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
+    { path: '/login', component: LoginView },
     { path: '/', component: HomeView },
     { path: '/leagues', component: LeaguesView },
     { path: '/leagues/:leagueId/games', component: GamesView, props: (r) => ({ leagueId: Number(r.params.leagueId) }) },
@@ -24,6 +27,14 @@ const router = createRouter({
     },
   ],
   scrollBehavior: () => ({ top: 0 }),
+})
+
+// Everything except the login screen needs a signed-in user. Signed in is a local fact (see auth.ts),
+// so this works offline too. A link from the login mail (/login?email=&code=) is let through to sign in.
+router.beforeEach((to) => {
+  if (to.path === '/login') return isSignedIn.value && !to.query.code ? '/' : true
+  if (!isSignedIn.value) return { path: '/login', query: to.fullPath === '/' ? {} : { redirect: to.fullPath } }
+  return true
 })
 
 createApp(App).use(router).mount('#app')

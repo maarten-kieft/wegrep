@@ -6,12 +6,18 @@ declare(strict_types=1);
  * the routes below map them to the controllers in lib/Http/Controllers.
  */
 
+use Wegrep\Auth\AuthService;
+use Wegrep\Auth\Authenticator;
+use Wegrep\Auth\UserStore;
+use Wegrep\Db\Database;
 use Wegrep\HockeyData\HockeyDataClient;
 use Wegrep\Http\ApiException;
+use Wegrep\Http\Controllers\AuthController;
 use Wegrep\Http\Controllers\GameController;
 use Wegrep\Http\Controllers\LeagueController;
 use Wegrep\Http\Controllers\MetaController;
 use Wegrep\Http\Router;
+use Wegrep\Mail\Mailer;
 
 $root = dirname(__DIR__, 2);
 require $root . '/lib/autoload.php';
@@ -25,19 +31,32 @@ try {
     $path = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
     $path = '/' . trim(preg_replace('#^.*?/api(?=/|$)#', '', $path), '/');
 
-    if ($path !== '/meta' && $config['app_password'] !== ''
-        && !hash_equals($config['app_password'], $_SERVER['HTTP_X_APP_PASSWORD'] ?? '')) {
-        throw new ApiException('Wachtwoord onjuist', 401);
+    $users = new UserStore(new Database($config));
+    $authenticator = new Authenticator($users, $config['jwt_secret']);
+    $authService = new AuthService($users, new Mailer($config), $config);
+
+    // Everything needs a signed-in user (a JWT in the Authorization header) except these.
+    $public = ['/meta', '/logos', '/auth/register', '/auth/code', '/auth/verify'];
+    if (!in_array($path, $public, true)) {
+        $authenticator->requireUser($_SERVER);
+        if ($authenticator->renewedToken() !== null) {
+            header('X-Renewed-Token: ' . $authenticator->renewedToken());
+        }
     }
 
     $client = new HockeyDataClient($config);
     $meta = new MetaController($config, $root);
+    $auth = new AuthController($authService, $authenticator);
     $leagues = new LeagueController($client, $config);
     $games = new GameController($client, $config);
 
     $router = (new Router())
         ->add('GET',  '/meta',                   $meta->meta(...))
         ->add('GET',  '/logos',                  $meta->logos(...))
+        ->add('POST', '/auth/register',          $auth->register(...))
+        ->add('POST', '/auth/code',              $auth->code(...))
+        ->add('POST', '/auth/verify',            $auth->verify(...))
+        ->add('GET',  '/auth/me',                $auth->me(...))
         ->add('GET',  '/leagues',                $leagues->leagues(...))
         ->add('GET',  '/leagues/(\d+)/games',    $leagues->games(...))
         ->add('GET',  '/games/(\d+)',            $games->show(...))

@@ -99,7 +99,6 @@ export interface PenaltyType {
 
 export interface Meta {
   uploadEnabled: boolean
-  passwordRequired: boolean
   penaltyTypes: PenaltyType[]
 }
 
@@ -124,4 +123,13 @@ export interface PrecheckResult {
 export interface UploadResult {
   Status: string
   SmsReturnCode: string
+}
+
+/** role is null while the account waits for approval by an administrator. */
+export interface User {
+  id: number
+  email: string
+  firstname: string
+  lastname: string
+  role: 'user' | 'administrator' | null
 }

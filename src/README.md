@@ -23,8 +23,10 @@ See the [README in the repo root](../README.md) for the development setup.
 ## Deploy
 
 Run `npm run build` in `frontend/`, then upload the `backend/` folder and point the document root at `public/`.
-Set the secrets from `.env.example` as environment variables on the server, and always set `WEGREP_APP_PASSWORD`
-when the site is reachable from the internet.
+Set the settings from `.env.example` as environment variables on the server, or put them in a `.env` next to
+`config.php` if the hosting has no environment variables (the pipeline never overwrites it). You need the database
+(`WEGREP_DB_*`, the tables are created on first use), `WEGREP_JWT_SECRET`, `WEGREP_ADMIN_EMAIL`, `WEGREP_APP_URL` and
+`WEGREP_MAIL_FROM`.
 
 In a sub folder (like `https://example.nl/sheet/`): build with `WEGREP_BASE=/sheet/ npm run build`, copy the
 contents of `backend/public/` to that folder and `lib/`, `data/`, `config.php` one level up (the api looks for them at

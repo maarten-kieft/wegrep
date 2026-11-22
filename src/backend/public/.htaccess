@@ -1,4 +1,6 @@
 RewriteEngine On
+# Hand the Authorization header (the login token) to PHP; some hosts strip it.
+RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
 RewriteRule ^api(/.*)?$ api/index.php [L,QSA]
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d

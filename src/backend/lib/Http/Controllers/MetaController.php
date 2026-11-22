@@ -11,12 +11,11 @@ final class MetaController
     {
     }
 
-    /** GET /meta: penalty codes, upload on/off, whether a password is needed */
+    /** GET /meta: penalty codes and upload on/off. Public, so the app can start before anyone is signed in. */
     public function meta(): array
     {
         return [
             'uploadEnabled' => (bool) $this->config['upload_enabled'],
-            'passwordRequired' => $this->config['app_password'] !== '',
             'penaltyTypes' => json_decode(file_get_contents($this->root . '/data/penalty_types.json'), true),
         ];
     }

@@ -16,12 +16,13 @@ Tailwind frontend. See [`src/README.md`](src/README.md) for deployment and how t
 
 ```bash
 cd src
-cp .env.example .env          # then fill in WEGREP_LEAGUE_PASSWORD
+cp .env.example .env          # then fill in WEGREP_LEAGUE_PASSWORD, WEGREP_JWT_SECRET, WEGREP_ADMIN_EMAIL
 cd frontend
 npm install
 ```
 
-In `.env` you only need `WEGREP_LEAGUE_PASSWORD` to get started. Leave `WEGREP_APP_PASSWORD` empty locally and keep
+In `.env` you need `WEGREP_LEAGUE_PASSWORD`, a `WEGREP_JWT_SECRET` (how to generate one is in `.env.example`) and
+`WEGREP_ADMIN_EMAIL` (the address that becomes the first administrator) to get started. Keep
 `WEGREP_UPLOAD_ENABLED=false`: uploading writes the official game report. All settings and their defaults are in
 `src/backend/config.php`; anything in `.env` overrides them.
 
@@ -118,7 +119,7 @@ Set these in `src/.env` and recreate the container:
 | `WEGREP_CLUB_FILTER=true` + `WEGREP_CLUBS=...` | only show leagues and games of these clubs |
 | `WEGREP_DEMO_LEAGUE=true` | keep hockeydata's demo league (id 320, dummy games) visible while the club filter is on |
 | `WEGREP_LOGOS_ENABLED=false` | no club logos from ijshockey.nl, lettered badges only |
-| `WEGREP_APP_PASSWORD=...` | test the login screen |
+| `WEGREP_ADMIN_EMAIL=you@example.com` | this address is administrator from its first login |
 
 Use the "Voorbeeld XML" button in a game to see exactly what would be uploaded, without sending anything.
 
@@ -126,7 +127,10 @@ Use the "Voorbeeld XML" button in a game to see exactly what would be uploaded, 
 
 - **"Permission denied" when loading games**: `WEGREP_LEAGUE_PASSWORD` is missing or wrong in `src/.env`, or the
   container was not recreated after changing it.
-- **"Wachtwoord onjuist"**: `WEGREP_APP_PASSWORD` is set; enter it in the app or empty it in `.env`.
+- **"WEGREP_JWT_SECRET is niet (of te kort...) ingesteld"**: set a secret of at least 32 characters in `src/.env` and
+  recreate the container.
+- **No login mail arrives**: locally mails go to Mailpit, http://localhost:8025. On a server check `WEGREP_MAIL_FROM` and
+  that the hosting allows PHP `mail()`.
 - **API calls fail on :5173**: the backend is not running; check `docker compose ps` and `docker compose logs web`.
 - **Port 8080 already in use**: change `"8080:80"` in `docker-compose.yml` and the proxy target in
   `frontend/vite.config.ts`.
@@ -134,11 +138,6 @@ Use the "Voorbeeld XML" button in a game to see exactly what would be uploaded, 
 
 ## TODO
 
-- [ ] Decide whether to switch the app password to PHP sessions. Now the frontend keeps the password in
-  `localStorage` and sends it as `X-App-Password` on every request. A `POST /api/login` that sets an `HttpOnly`
-  session cookie would keep it out of JavaScript and allow logging out. Fine as is for a small group over HTTPS;
-  worth doing before the app is really public.
-- Added user login via e-mail. No passwords. Create user db with e-mail, firstname, lastname, role. Allow creating accounts and user login via e-mailadres. They receive a code (code & link) to login
 - When you create an account it needs to be approved by an administrator. Administrators can also login and have an extra link in the topic screen (right side same level als the back buttons)
 - In the administrator pages administrators can change user roles. A new user registration is just assign a role to it. The roles: user / administrator
 - See if its an option to we can upload a gamereport into the current windows application. If possible make it possible to download a gamereport so we can upload it in the application if the normal flow doesn't work

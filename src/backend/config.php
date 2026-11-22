@@ -34,8 +34,23 @@ return [
     'db_user' => getenv('WEGREP_DB_USER') ?: 'wegrep',
     // SECRET -> set WEGREP_DB_PASSWORD in .env.
     'db_password' => getenv('WEGREP_DB_PASSWORD') ?: '',
-    // Shared password for the web app. SECRET -> set WEGREP_APP_PASSWORD in .env.
-    'app_password' => getenv('WEGREP_APP_PASSWORD') ?: '',
+    // Login. The app signs people in with a code sent by e-mail and then hands out a JWT.
+    // SECRET -> set WEGREP_JWT_SECRET (at least 32 random characters) in .env, for example:
+    //   php -r "echo bin2hex(random_bytes(32));"
+    'jwt_secret' => getenv('WEGREP_JWT_SECRET') ?: '',
+    // Addresses that are administrators from their first login (comma-separated). This is how
+    // the first administrator comes about; after that administrators can promote others in the app.
+    'admin_emails' => array_values(array_filter(array_map(
+        fn($e) => strtolower(trim($e)),
+        explode(',', getenv('WEGREP_ADMIN_EMAIL') ?: '')
+    ), fn($e) => $e !== '')),
+    // Public address of the app, used for the login link in mails, e.g. https://sheet.example.nl.
+    // Empty = mails carry the code only. Never derived from the request: a forged Host header
+    // would put a link to someone else's site in the mail.
+    'app_url' => rtrim(getenv('WEGREP_APP_URL') ?: '', '/'),
+    // Sender of the mails. On a real server use an address of your own domain, or mails end up in spam.
+    'mail_from' => getenv('WEGREP_MAIL_FROM') ?: 'wegrep@localhost',
+    'mail_from_name' => getenv('WEGREP_MAIL_FROM_NAME') ?: 'Wegrep',
     // Club logos are read from ijshockey.nl's public competition feeds (no secret,
     // no login) and cached on disk. Turn off to show lettered badges only.
     'logos_enabled' => filter_var(getenv('WEGREP_LOGOS_ENABLED') ?: 'true', FILTER_VALIDATE_BOOLEAN),

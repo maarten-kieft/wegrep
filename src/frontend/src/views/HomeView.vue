@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { asset } from '../ui'
+import UserMenu from '../components/UserMenu.vue'
 </script>
 
 <template>
@@ -9,6 +10,7 @@ import { asset } from '../ui'
       <div class="absolute inset-0 bg-gradient-to-b from-black/60 via-black/40 to-black/70" />
     </div>
 
+    <div class="absolute top-4 right-4 z-20"><UserMenu /></div>
     <div class="relative z-10 flex h-full flex-col items-center justify-center gap-8 px-4">
       <h1 class="text-balance text-center font-bold text-white text-5xl md:text-7xl drop-shadow-2xl">
         Ice Hockey Game Sheet
