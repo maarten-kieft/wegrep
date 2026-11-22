@@ -33,6 +33,8 @@ export interface Player {
   position: string // 'G', 'D', 'F', 'TO' (team official) ...
   line: string
   starting: boolean
+  /** Added at the last minute from everybody registered with the club (can be removed again). */
+  added?: boolean
 }
 
 export interface Official {

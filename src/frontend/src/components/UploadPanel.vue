@@ -7,6 +7,7 @@ import type { GameStore } from '../gameStore'
 import { meta } from '../meta'
 import type { PrecheckResult } from '../types'
 import { btn, card } from '../ui'
+import { validateSubmit } from '../validation'
 
 const props = defineProps<{ game: GameStore; gameId: number }>()
 
@@ -29,7 +30,7 @@ const scorekeeper = computed(() => {
   return o ? `${o.lastname} ${o.firstname}`.trim() : ''
 })
 const state = () => ({ ...structuredClone(toRaw(props.game.report.value!)), ruleset: structuredClone(toRaw(props.game.ruleset.value)) })
-const timesFilledIn = computed(() => !!props.game.report.value?.gamestart && !!props.game.report.value?.gameend)
+const submitProblems = computed(() => (props.game.report.value ? validateSubmit(props.game.report.value) : []))
 const submitting = ref(false)
 const tie = computed(() => props.game.score.value.home === props.game.score.value.away)
 
@@ -112,11 +113,10 @@ async function upload() {
         <input v-model="blueCode" class="field" placeholder="Blue code (optional)" />
         <input v-model="redCode" class="field" placeholder="Red code (optional)" />
       </div>
-      <p v-if="scorekeeper && !timesFilledIn" class="text-sm text-warning">Fill in the start and end time of the game (Game times above) first.</p>
-      <p v-if="!scorekeeper" class="text-sm text-warning">Fill in the scorekeeper (under Officials above) first: EGREP always sends their name with the upload.</p>
+      <p v-for="(problem, i) in submitProblems" :key="i" class="text-sm text-warning">{{ problem }}</p>
       <p v-if="tie" class="text-sm text-warning">The score is tied. EGREP blocks this when the game has overtime or a shoot-out.</p>
       <button :class="btn('default', 'lg', `w-full h-12 font-semibold ${submitting ? 'disabled:opacity-100' : ''}`)"
-        :disabled="busy || !scorekeeper || !timesFilledIn" :aria-busy="submitting" @click="upload">
+        :disabled="busy || submitProblems.length > 0" :aria-busy="submitting" @click="upload">
         <LoaderCircle v-if="submitting" class="w-5 h-5 animate-spin" />
         {{ submitting ? 'Submitting…' : 'Submit Game Sheet' }}</button>
     </template>

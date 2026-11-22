@@ -54,7 +54,7 @@ function addPlayer(p: EligiblePlayer) {
   emit('add', {
     id: p.id, jersey: '', lastname: p.lastname, firstname: p.firstname, prefix: p.prefix, licensenr: p.licensenr,
     birthdate: p.birthdate, captain: '', position: p.position === 'G' || p.position === 'D' || p.position === 'F' ? p.position : '',
-    line: '1', starting: false,
+    line: '1', starting: false, added: true,
   })
 }
 
@@ -69,7 +69,7 @@ function officialNumber(job: string): string {
 function addOfficial(o: EligibleOfficial) {
   emit('add', {
     id: o.id, jersey: officialNumber(o.job), lastname: o.lastname, firstname: o.firstname, prefix: o.prefix, licensenr: '',
-    birthdate: o.birthdate, captain: '', position: 'TO', line: '1', starting: false,
+    birthdate: o.birthdate, captain: '', position: 'TO', line: '1', starting: false, added: true,
   })
 }
 </script>

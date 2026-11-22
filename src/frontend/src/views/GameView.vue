@@ -16,6 +16,7 @@ import { useGame } from '../gameStore'
 import { meta } from '../meta'
 import { syncConflict, syncTakenOver } from '../sessionSync'
 import { formatTime, nowHHMM } from '../time'
+import { officialsMissing, setupWarnings, validateSetup } from '../validation'
 import type { Goal, Penalty, Side } from '../types'
 import { btn, card } from '../ui'
 
@@ -65,10 +66,7 @@ const shots = (p: string) => report.value?.shots[p] ?? { home: 0, away: 0 }
 const totalShots = (s: Side) => shotPeriods.value.reduce((t, p) => t + shots(p)[s], 0)
 
 // ---- officials ----
-const scorekeeperMissing = computed(() => {
-  const o = report.value?.officials.find((x) => x.function.toLowerCase() === 'scorekeeper')
-  return !o || `${o.lastname}${o.firstname}`.trim() === ''
-})
+const officialsIncomplete = computed(() => (report.value ? officialsMissing(report.value) : false))
 
 // ---- live scoring: every minute while on, like EGREP ----
 const live = ref(false)
@@ -95,7 +93,11 @@ watch(live, (on) => {
 onBeforeUnmount(() => clearInterval(liveTimer))
 
 // ---- phases ----
+// A game can only be started with players on the sheet of both teams and numbers that can be right.
+const setupProblems = computed(() => (report.value ? validateSetup(report.value, teamName) : []))
+const setupWarns = computed(() => (report.value ? setupWarnings(report.value, teamName) : []))
 function startGame() {
+  if (setupProblems.value.length) return
   game.phase.value = 'active'
   if (report.value && !report.value.livetime) report.value.livetime = 'START-1'
   // The real start time, the moment the game is started (can be corrected when the game has ended).
@@ -191,6 +193,12 @@ async function resetGame() {
             :game-id="gameId" :team-id="gd.teambid ?? ''" />
         </div>
 
+        <div v-if="setupProblems.length || setupWarns.length" :class="[card, 'p-4 space-y-2']">
+          <h3 class="font-semibold">Before you start</h3>
+          <p v-for="(problem, i) in setupProblems" :key="'p' + i" class="text-sm text-destructive">{{ problem }}</p>
+          <p v-for="(warning, i) in setupWarns" :key="'w' + i" class="text-sm text-warning">{{ warning }}</p>
+        </div>
+
         <div :class="[card, 'p-4']">
           <h3 class="font-semibold mb-3">Officials</h3>
           <OfficialsEditor :officials="report.officials" />
@@ -199,7 +207,9 @@ async function resetGame() {
 
       <div class="fixed bottom-0 left-0 right-0 p-4 pb-[calc(1rem+env(safe-area-inset-bottom))] bg-background border-t border-border">
         <div class="max-w-4xl mx-auto">
-          <button :class="btn('default', 'lg', 'w-full h-12')" @click="startGame">Start Game</button>
+          <p v-if="setupProblems.length" class="text-sm text-destructive text-center mb-2" role="alert">
+            {{ setupProblems.length === 1 ? '1 thing' : setupProblems.length + ' things' }} to fix before you can start (see above)</p>
+          <button :class="btn('default', 'lg', 'w-full h-12')" :disabled="setupProblems.length > 0" @click="startGame">Start Game</button>
         </div>
       </div>
     </template>
@@ -396,8 +406,8 @@ async function resetGame() {
         </div>
 
         <!-- The officials can still be filled in here: the scorekeeper is needed to submit. Open when it is missing. -->
-        <details v-if="report" :open="scorekeeperMissing" :class="[card, 'p-4']">
-          <summary class="font-semibold cursor-pointer">Officials<span v-if="scorekeeperMissing" class="ml-2 text-sm font-normal text-warning">scorekeeper is missing</span></summary>
+        <details v-if="report" :open="officialsIncomplete" :class="[card, 'p-4']">
+          <summary class="font-semibold cursor-pointer">Officials<span v-if="officialsIncomplete" class="ml-2 text-sm font-normal text-warning">referee, scorekeeper or timekeeper is missing</span></summary>
           <div class="mt-3"><OfficialsEditor :officials="report.officials" /></div>
         </details>
 
