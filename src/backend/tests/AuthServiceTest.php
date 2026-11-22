@@ -1,6 +1,7 @@
 <?php
 declare(strict_types=1);
 
+use Wegrep\Auth\AdminService;
 use Wegrep\Auth\AuthService;
 use Wegrep\Auth\Authenticator;
 use Wegrep\Auth\UserStore;
@@ -100,12 +101,78 @@ test('an unknown address gets a 404 when asking for a code', function () {
     assertSame(404, $e->status);
 });
 
-test('an address in the admin list becomes administrator', function () {
+test('an address in the admin list becomes administrator, everybody else waits for approval', function () {
     $f = authFixture();
     $f->auth->register('boss@example.com', 'The', 'Boss');
     assertSame('administrator', $f->auth->verify('boss@example.com', ($f->lastCode)())['role']);
     $f->auth->register('piet@example.com', 'Piet', 'Puck');
-    assertSame('user', $f->auth->verify('piet@example.com', ($f->lastCode)())['role']);
+    assertSame(null, $f->auth->verify('piet@example.com', ($f->lastCode)())['role']);
+});
+
+test('administrators are mailed once the new address is verified, not before', function () {
+    $f = authFixture();
+    $f->auth->register('boss@example.com', 'The', 'Boss');
+    $f->auth->verify('boss@example.com', ($f->lastCode)());
+    $before = count($f->mails);
+
+    $f->auth->register('piet@example.com', 'Piet', 'Puck');
+    assertSame($before + 1, count($f->mails), 'only the code mail so far');
+
+    $f->auth->verify('piet@example.com', ($f->lastCode)());
+    assertSame($before + 2, count($f->mails));
+    $mail = end($f->mails);
+    assertSame('boss@example.com', $mail['to']);
+    assertTrue(str_contains($mail['subject'], 'Piet Puck'));
+    assertTrue(str_contains($mail['body'], 'https://sheet.example.nl/admin'));
+
+    // A second login does not mail the administrators again.
+    $f->time += 3600;
+    $f->auth->requestCode('piet@example.com');
+    $f->auth->verify('piet@example.com', ($f->lastCode)());
+    assertSame($before + 3, count($f->mails), 'only the new code mail');
+});
+
+test('an administrator approves an account by giving it a role', function () {
+    $f = authFixture();
+    $f->auth->register('boss@example.com', 'The', 'Boss');
+    $boss = $f->auth->verify('boss@example.com', ($f->lastCode)());
+    $f->auth->register('piet@example.com', 'Piet', 'Puck');
+    $piet = $f->auth->verify('piet@example.com', ($f->lastCode)());
+
+    $admin = new AdminService($f->users);
+    $list = $admin->list();
+    assertSame('piet@example.com', $list[0]['email'], 'accounts waiting for approval come first');
+    assertSame(null, $list[0]['role']);
+
+    assertSame('user', $admin->setRole($boss, (int) $piet['id'], 'user')['role']);
+    assertSame('administrator', $admin->setRole($boss, (int) $piet['id'], 'administrator')['role']);
+});
+
+test('role changes refuse unknown roles, unknown users and yourself', function () {
+    $f = authFixture();
+    $f->auth->register('boss@example.com', 'The', 'Boss');
+    $boss = $f->auth->verify('boss@example.com', ($f->lastCode)());
+    $admin = new AdminService($f->users);
+    assertThrows(ApiException::class, fn() => $admin->setRole($boss, 999, 'user'));
+    assertThrows(ApiException::class, fn() => $admin->setRole($boss, (int) $boss['id'], 'user'));
+    assertThrows(ApiException::class, fn() => $admin->setRole($boss, (int) $boss['id'], 'superuser'));
+});
+
+test('only an approved user passes the approval check, only an administrator the admin check', function () {
+    $f = authFixture();
+    $f->auth->register('boss@example.com', 'The', 'Boss');
+    $boss = $f->auth->verify('boss@example.com', ($f->lastCode)());
+    $f->auth->register('piet@example.com', 'Piet', 'Puck');
+    $piet = $f->auth->verify('piet@example.com', ($f->lastCode)());
+
+    $asPiet = new Authenticator($f->users, JWT_SECRET, $f->now);
+    $asPiet->requireUser(['HTTP_AUTHORIZATION' => 'Bearer ' . $asPiet->issueToken($piet)]);
+    assertSame(403, assertThrows(ApiException::class, fn() => $asPiet->requireApproved())->status);
+
+    (new AdminService($f->users))->setRole($boss, (int) $piet['id'], 'user');
+    $asPiet->requireUser(['HTTP_AUTHORIZATION' => 'Bearer ' . $asPiet->issueToken($piet)]);
+    assertSame('user', $asPiet->requireApproved()['role']);
+    assertSame(403, assertThrows(ApiException::class, fn() => $asPiet->requireAdmin())->status);
 });
 
 test('a token gets you in, is renewed after a day and dies with the account', function () {

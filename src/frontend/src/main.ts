@@ -6,7 +6,8 @@ import LeaguesView from './views/LeaguesView.vue'
 import GamesView from './views/GamesView.vue'
 import GameView from './views/GameView.vue'
 import LoginView from './views/LoginView.vue'
-import { isSignedIn } from './auth'
+import AdminView from './views/AdminView.vue'
+import { isAdmin, isSignedIn } from './auth'
 import { ensureLogos } from './logos'
 import './style.css'
 
@@ -18,6 +19,7 @@ const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
     { path: '/login', component: LoginView },
+    { path: '/admin', component: AdminView, meta: { admin: true } },
     { path: '/', component: HomeView },
     { path: '/leagues', component: LeaguesView },
     { path: '/leagues/:leagueId/games', component: GamesView, props: (r) => ({ leagueId: Number(r.params.leagueId) }) },
@@ -34,6 +36,7 @@ const router = createRouter({
 router.beforeEach((to) => {
   if (to.path === '/login') return isSignedIn.value && !to.query.code ? '/' : true
   if (!isSignedIn.value) return { path: '/login', query: to.fullPath === '/' ? {} : { redirect: to.fullPath } }
+  if (to.meta.admin && !isAdmin.value) return '/'
   return true
 })
 

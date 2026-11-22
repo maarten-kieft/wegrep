@@ -138,7 +138,6 @@ Use the "Voorbeeld XML" button in a game to see exactly what would be uploaded, 
 
 ## TODO
 
-- When you create an account it needs to be approved by an administrator. Administrators can also login and have an extra link in the topic screen (right side same level als the back buttons)
 - In the administrator pages administrators can change user roles. A new user registration is just assign a role to it. The roles: user / administrator
 - See if its an option to we can upload a gamereport into the current windows application. If possible make it possible to download a gamereport so we can upload it in the application if the normal flow doesn't work
 - Keep sessions: It should be possible to view which game report was started and everything is saved in both local session as database. Initially in local storage and synced to the backend. (if the interconnection interupts)

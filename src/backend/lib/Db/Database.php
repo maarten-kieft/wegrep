@@ -38,6 +38,12 @@ final class Database
                 CONSTRAINT login_codes_user_fk FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE
             ) DEFAULT CHARSET=utf8mb4",
         ],
+        // The address is proven by using a login code once; administrators are told about a new
+        // account only then. Accounts that existed before count as verified.
+        2 => [
+            'ALTER TABLE users ADD COLUMN verified_at DATETIME NULL',
+            'UPDATE users SET verified_at = created_at',
+        ],
     ];
 
     private ?PDO $pdo = null;

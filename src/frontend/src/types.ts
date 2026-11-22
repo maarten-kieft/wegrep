@@ -133,3 +133,9 @@ export interface User {
   lastname: string
   role: 'user' | 'administrator' | null
 }
+
+/** A user as the administrator pages see them. */
+export interface AdminUser extends User {
+  createdAt: string
+  verified: boolean
+}

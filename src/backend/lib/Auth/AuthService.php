@@ -79,7 +79,31 @@ final class AuthService
             $this->users->setRole((int) $user['id'], 'administrator');
             $user = $this->users->find((int) $user['id']);
         }
+        // First time the code is used the address is proven to be theirs: only now the administrators
+        // hear about the new account, so nobody can fill their inbox with made-up addresses.
+        if ($user['verified_at'] === null) {
+            $this->users->markVerified((int) $user['id'], $now);
+            $user = $this->users->find((int) $user['id']);
+            if ($user['role'] === null) {
+                $this->notifyAdministrators($user);
+            }
+        }
         return $user;
+    }
+
+    private function notifyAdministrators(array $user): void
+    {
+        $text = "{$user['firstname']} {$user['lastname']} ({$user['email']}) heeft een account aangemaakt voor Wegrep en wacht op goedkeuring.\n";
+        if ($this->config['app_url'] !== '') {
+            $text .= "\nGoedkeuren kan hier: {$this->config['app_url']}/admin\n";
+        }
+        foreach ($this->users->administrators() as $admin) {
+            try {
+                $this->mailer->send($admin['email'], "Nieuwe aanvraag voor Wegrep: {$user['firstname']} {$user['lastname']}", $text);
+            } catch (ApiException $e) {
+                error_log("Could not notify administrator {$admin['email']}: " . $e->getMessage());
+            }
+        }
     }
 
     private function sendCode(array $user): void
@@ -103,7 +127,7 @@ final class AuthService
 
     private function roleForNewUser(string $email): ?string
     {
-        return $this->isConfiguredAdmin($email) ? 'administrator' : 'user';
+        return $this->isConfiguredAdmin($email) ? 'administrator' : null; // null = waits for approval
     }
 
     private function isConfiguredAdmin(string $email): bool

@@ -52,6 +52,11 @@ final class UserStore
         $this->pdo()->prepare('UPDATE users SET role = ? WHERE id = ?')->execute([$role, $id]);
     }
 
+    public function markVerified(int $id, int $now): void
+    {
+        $this->pdo()->prepare('UPDATE users SET verified_at = ? WHERE id = ?')->execute([self::time($now), $id]);
+    }
+
     public function delete(int $id): void
     {
         $this->pdo()->prepare('DELETE FROM users WHERE id = ?')->execute([$id]);

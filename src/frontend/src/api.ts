@@ -1,5 +1,6 @@
 import type {
   GameListItem, GameResponse, League, LogoDict, Meta, PrecheckResult, ReportState, UploadResult, User,
+  AdminUser,
 } from './types'
 import { getToken, renewToken, signOut } from './auth'
 
@@ -41,6 +42,9 @@ export const api = {
   requestCode: (email: string) => post<{ ok: true }>('/auth/code', { email }),
   verifyCode: (email: string, code: string) => post<{ token: string; user: User }>('/auth/verify', { email, code }),
   me: () => request<{ user: User }>('/auth/me'),
+  adminUsers: () => request<AdminUser[]>('/admin/users'),
+  setRole: (id: number, role: 'user' | 'administrator') =>
+    request<User>(`/admin/users/${id}`, { method: 'PATCH', body: JSON.stringify({ role }) }),
   leagues: () => request<League[]>('/leagues'),
   logos: () => request<LogoDict>('/logos'),
   games: (leagueId: number, selection: string) =>

@@ -2,8 +2,9 @@
 import { onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { api } from './api'
-import { isSignedIn, setUser } from './auth'
+import { currentUser, isSignedIn, setUser } from './auth'
 import { loadMeta } from './meta'
+import PendingApprovalView from './views/PendingApprovalView.vue'
 
 const router = useRouter()
 const route = useRoute()
@@ -43,5 +44,6 @@ watch(isSignedIn, (signedIn) => {
   <div v-if="startError" class="min-h-screen grid place-items-center p-4 text-center text-muted-foreground">
     Cannot reach the server: {{ startError }}
   </div>
+  <PendingApprovalView v-else-if="ready && isSignedIn && currentUser?.role === null" />
   <RouterView v-else-if="ready" />
 </template>

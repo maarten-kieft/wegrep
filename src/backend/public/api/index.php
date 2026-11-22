@@ -6,12 +6,14 @@ declare(strict_types=1);
  * the routes below map them to the controllers in lib/Http/Controllers.
  */
 
+use Wegrep\Auth\AdminService;
 use Wegrep\Auth\AuthService;
 use Wegrep\Auth\Authenticator;
 use Wegrep\Auth\UserStore;
 use Wegrep\Db\Database;
 use Wegrep\HockeyData\HockeyDataClient;
 use Wegrep\Http\ApiException;
+use Wegrep\Http\Controllers\AdminController;
 use Wegrep\Http\Controllers\AuthController;
 use Wegrep\Http\Controllers\GameController;
 use Wegrep\Http\Controllers\LeagueController;
@@ -42,6 +44,13 @@ try {
         if ($authenticator->renewedToken() !== null) {
             header('X-Renewed-Token: ' . $authenticator->renewedToken());
         }
+        // A new account can only ask who it is (to find out when it was approved), nothing else.
+        if ($path !== '/auth/me') {
+            $authenticator->requireApproved();
+        }
+        if (str_starts_with($path, '/admin/')) {
+            $authenticator->requireAdmin();
+        }
     }
 
     $client = new HockeyDataClient($config);
@@ -49,6 +58,7 @@ try {
     $auth = new AuthController($authService, $authenticator);
     $leagues = new LeagueController($client, $config);
     $games = new GameController($client, $config);
+    $admin = new AdminController(new AdminService($users), $authenticator);
 
     $router = (new Router())
         ->add('GET',  '/meta',                   $meta->meta(...))
@@ -57,6 +67,8 @@ try {
         ->add('POST', '/auth/code',              $auth->code(...))
         ->add('POST', '/auth/verify',            $auth->verify(...))
         ->add('GET',  '/auth/me',                $auth->me(...))
+        ->add('GET',  '/admin/users',            $admin->users(...))
+        ->add('PATCH', '/admin/users/(\d+)',     $admin->setRole(...))
         ->add('GET',  '/leagues',                $leagues->leagues(...))
         ->add('GET',  '/leagues/(\d+)/games',    $leagues->games(...))
         ->add('GET',  '/games/(\d+)',            $games->show(...))
