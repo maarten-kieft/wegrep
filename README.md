@@ -96,9 +96,10 @@ the server over SFTP. `.env` and `data/logo_cache/` are never overwritten. Set t
 ```
 src/
   backend/             PHP, this folder is what gets deployed
-    public/            document root: api/index.php (route table for /api), .htaccess; the built SPA lands here
+    public/            document root: api/index.php (starts the Application), .htaccess; the built SPA lands here
     lib/               PHP classes, namespace Wegrep\<folder>
-      Http/            Router, ApiException and Controllers/ (the /api endpoints: Meta, League, Game)
+      Http/            routes.php (the route table with who may call what), Application (one request), Router, Endpoints
+                       (wires the controllers together) and Controllers/ (the /api endpoints)
       HockeyData/      hockeydata LOS6 client and the reader for its .NET BinaryFormatter answers
       GameReport/      EGREP game report XML and the [HD] encryption around it
       Clubs/           ijshockey.nl feed (logos + schedule) and the club filter

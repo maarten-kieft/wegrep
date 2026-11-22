@@ -23,6 +23,12 @@ function skip(string $why): never
  */
 function testDatabase(): Wegrep\Storage\Database
 {
+    return new Wegrep\Storage\Database(testDbConfig());
+}
+
+/** The db_* settings of a fresh empty test database (see testDatabase). */
+function testDbConfig(): array
+{
     $host = getenv('WEGREP_TEST_DB_HOST') ?: skip('WEGREP_TEST_DB_HOST not set');
     $user = getenv('WEGREP_TEST_DB_USER') ?: 'root';
     $pass = getenv('WEGREP_TEST_DB_PASSWORD') ?: '';
@@ -30,7 +36,7 @@ function testDatabase(): Wegrep\Storage\Database
     $admin = new PDO("mysql:host=$host;charset=utf8mb4", $user, $pass, [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]);
     $admin->exec("DROP DATABASE IF EXISTS $name");
     $admin->exec("CREATE DATABASE $name CHARACTER SET utf8mb4");
-    return new Wegrep\Storage\Database(['db_host' => $host, 'db_port' => 3306, 'db_name' => $name, 'db_user' => $user, 'db_password' => $pass]);
+    return ['db_host' => $host, 'db_port' => 3306, 'db_name' => $name, 'db_user' => $user, 'db_password' => $pass];
 }
 
 function test(string $name, callable $fn): void
