@@ -1,8 +1,8 @@
 import { computed, onScopeDispose, reactive, ref, watch } from 'vue'
-import { api } from './api'
+import { api, ApiError } from './api'
 import { currentUser } from './auth'
 import { readLocal, removeLocal, summarize, writeLocal } from './localGames'
-import { clearDirty, markDirty, pushNow, schedulePush } from './sessionSync'
+import { clearDirty, letGoOfTakenOver, markDirty, pushNow, schedulePush } from './sessionSync'
 import type { Clock, GameRuleset, Goal, Penalty, Phase, ReportState, SavedGame, SessionSummary, Side } from './types'
 
 export type { Phase }
@@ -38,6 +38,8 @@ export function useGame(gameId: number, leagueId: number, resume = false) {
 
   /** Set when the server has a session that may be newer than ours and the user has to pick. */
   const choice = ref<ResumeChoice | null>(null)
+  /** Set when the session we had was taken over by an administrator and we started again. */
+  const tookOverNotice = ref(false)
 
   function apply(saved: SavedGame) {
     phase.value = saved.phase ?? 'setup'
@@ -57,14 +59,14 @@ export function useGame(gameId: number, leagueId: number, resume = false) {
   }
 
   /** The server's copy, or null when there is none or we cannot reach it (then the browser copy rules). */
-  async function fetchRemote() {
+  async function fetchRemote(): Promise<(SessionSummary & { state: SavedGame }) | 'taken' | null> {
     if (navigator.onLine === false) return null
     const abort = new AbortController()
     const timeout = setTimeout(() => abort.abort(), 4000)
     try {
       return await api.session(gameId, abort.signal)
-    } catch {
-      return null
+    } catch (e) {
+      return e instanceof ApiError && e.status === 410 ? 'taken' : null
     } finally {
       clearTimeout(timeout)
     }
@@ -80,7 +82,12 @@ export function useGame(gameId: number, leagueId: number, resume = false) {
       // without waiting for the server: we are obviously the device that is working on it.
       const justUsed = !!local && local.phase === 'active' && Date.now() - local.savedAt < 10 * 60_000
       const remote = fresh || justUsed ? null : await fetchRemote()
-      if (remote && (!local || remote.savedAt > local.savedAt)) {
+      if (remote === 'taken') {
+        // An administrator took our session over: let go of the old copy and begin again.
+        await letGoOfTakenOver(gameId)
+        tookOverNotice.value = true
+        await startFresh()
+      } else if (remote && (!local || remote.savedAt > local.savedAt)) {
         // Somewhere (maybe another device) this game was worked on more recently than here.
         if (resume) apply(remote.state)
         else choice.value = { remote, hasLocal: !!local }
@@ -123,7 +130,7 @@ export function useGame(gameId: number, leagueId: number, resume = false) {
   /** Take over the server's (newer) version while working, after another device saved. */
   async function adoptRemote() {
     const remote = await fetchRemote()
-    if (remote) apply(remote.state)
+    if (remote && remote !== 'taken') apply(remote.state)
   }
 
   function save() {
@@ -249,7 +256,7 @@ export function useGame(gameId: number, leagueId: number, resume = false) {
 
   return {
     loading, error, phase, templateXml, ruleset, report, clock,
-    choice, load, resolveChoice, adoptRemote, resetFromServer,
+    choice, tookOverNotice, load, resolveChoice, adoptRemote, resetFromServer,
     totalPeriods, periodLength, periodStart, periodLabel, periodShort, periodOf,
     elapsedInPeriod, remainingInPeriod, gameTime, running, startClock, stopClock, setPeriod, setGameTime, adjustClock, resetClock,
     score, byTime, addGoal, updateGoal, updatePenalty, removeGoal, addPenalty, removePenalty, lineup, playerName,

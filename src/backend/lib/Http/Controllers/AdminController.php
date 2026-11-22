@@ -48,6 +48,12 @@ final class AdminController
         return $this->sessions->listAll();
     }
 
+    /** POST /admin/sessions/{userId}/{gameId}/take-over: move the session to the administrator */
+    public function takeOver(string $userId, string $gameId): array
+    {
+        return $this->sessions->takeOver((int) $this->authenticator->user()['id'], (int) $userId, (int) $gameId, (int) (microtime(true) * 1000));
+    }
+
     /** GET /admin/sessions/{userId}/{gameId}: one session in full, to look at it */
     public function session(string $userId, string $gameId): array
     {

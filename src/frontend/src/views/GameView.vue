@@ -13,7 +13,7 @@ import UploadPanel from '../components/UploadPanel.vue'
 import { ensureLogos, logoFor } from '../logos'
 import { useGame } from '../gameStore'
 import { meta } from '../meta'
-import { syncConflict } from '../sessionSync'
+import { syncConflict, syncTakenOver } from '../sessionSync'
 import { formatTime } from '../time'
 import type { Goal, Penalty, Side } from '../types'
 import { btn, card } from '../ui'
@@ -127,6 +127,18 @@ async function resetGame() {
 
 <template>
   <div class="min-h-screen bg-background overflow-x-hidden">
+    <!-- An administrator took this session over: stop here, otherwise our next save would bring it back. -->
+    <div v-if="syncTakenOver === gameId" class="fixed inset-0 z-[70] bg-background grid place-items-center p-4">
+      <div :class="[card, 'w-full max-w-md p-6 space-y-4 text-center']">
+        <h2 class="text-lg font-bold">Sessie overgenomen</h2>
+        <p class="text-sm text-muted-foreground">Een beheerder heeft deze wedstrijd overgenomen. Hij staat niet meer op jouw naam en je kunt hier niet verder.</p>
+        <RouterLink :to="back" :class="btn('default', 'lg', 'w-full')" @click="syncTakenOver = null">Terug naar de wedstrijden</RouterLink>
+      </div>
+    </div>
+    <div v-if="game.tookOverNotice.value" class="fixed top-0 inset-x-0 z-40 bg-warning text-warning-foreground px-4 py-2 text-sm flex items-center justify-between gap-3">
+      <span>Je vorige sessie voor deze wedstrijd is door een beheerder overgenomen. Dit is een nieuwe sessie.</span>
+      <button class="underline" @click="game.tookOverNotice.value = false">Sluiten</button>
+    </div>
     <!-- Another device saved a newer version of this game while this one was open. -->
     <div v-if="syncConflict === gameId" class="fixed top-0 inset-x-0 z-40 bg-warning text-warning-foreground px-4 py-2 text-sm flex items-center justify-between gap-3">
       <span>Op een ander apparaat is een nieuwere versie van deze wedstrijd opgeslagen.</span>

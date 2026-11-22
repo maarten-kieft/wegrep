@@ -1,7 +1,7 @@
 import { ref } from 'vue'
 import { api, ApiError } from './api'
 import { isSignedIn } from './auth'
-import { readLocal, summarize } from './localGames'
+import { readLocal, removeLocal, summarize } from './localGames'
 import { storage } from './storage'
 
 // Keeps the server's copy of a started game in step with the browser's. The browser copy is the one the
@@ -12,6 +12,16 @@ const DEBOUNCE_MS = 2000
 
 /** Set when the server refused an upload because it holds a newer save of this game (from another device). */
 export const syncConflict = ref<number | null>(null)
+
+/** Set when an administrator took this game's session over: this device must let go of it. */
+export const syncTakenOver = ref<number | null>(null)
+
+/** Forget our copy of a session an administrator took over, and tell the server we know. */
+export async function letGoOfTakenOver(gameId: number) {
+  removeLocal(gameId)
+  clearDirty(gameId)
+  await api.deleteSession(gameId).catch(() => { /* acknowledged on the next sync */ })
+}
 
 const timers = new Map<number, ReturnType<typeof setTimeout>>()
 
@@ -47,6 +57,11 @@ export async function pushNow(gameId: number): Promise<Outcome> {
     if (syncConflict.value === gameId) syncConflict.value = null
     return 'ok'
   } catch (e) {
+    if (e instanceof ApiError && e.status === 410) {
+      await letGoOfTakenOver(gameId)
+      syncTakenOver.value = gameId
+      return 'conflict'
+    }
     if (e instanceof ApiError && e.status === 409) {
       clearDirty(gameId)
       syncConflict.value = gameId

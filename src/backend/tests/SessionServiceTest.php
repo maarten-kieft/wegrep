@@ -91,3 +91,34 @@ test('administrators can list the sessions of everybody, with who they belong to
     assertSame('b@example.com', $all[0]['user']['email']);
     assertSame($a, $all[1]['user']['id']);
 });
+
+test('taking a session over moves it to the administrator and replaces their own for that game', function () {
+    [$sessions, $user, $admin] = sessionFixture();
+    $sessions->put($user, 100, sessionBody(1000, 'active', 2, 1));
+    $sessions->put($admin, 100, sessionBody(500, 'active', 9, 9));
+    $sessions->put($user, 300, sessionBody(1000));
+
+    $taken = $sessions->takeOver($admin, $user, 100, 5000);
+    assertSame(2, $taken['scoreHome']);
+    assertSame(2, $sessions->get($admin, 100)['scoreHome']);
+    assertSame(null, $sessions->get($user, 100));
+    assertTrue($sessions->get($user, 300) !== null, 'their other games stay theirs');
+    assertSame(404, assertThrows(ApiException::class, fn() => $sessions->takeOver($admin, $user, 100, 6000))->status);
+    assertSame(400, assertThrows(ApiException::class, fn() => $sessions->takeOver($admin, $admin, 100, 6000))->status);
+});
+
+test('the previous owner is told with a 410 until their device acknowledges', function () {
+    [$sessions, $user, $admin] = sessionFixture();
+    $sessions->put($user, 100, sessionBody(1000));
+    $sessions->takeOver($admin, $user, 100, 5000);
+
+    assertTrue($sessions->isTakenOver($user, 100));
+    assertSame(410, assertThrows(ApiException::class, fn() => $sessions->put($user, 100, sessionBody(9000)))->status);
+    assertSame(null, $sessions->get($user, 100), 'the old copy is not resurrected');
+
+    $sessions->delete($user, 100); // the device acknowledges
+    assertTrue(!$sessions->isTakenOver($user, 100));
+    $sessions->put($user, 100, sessionBody(9500)); // a fresh start is possible again
+    assertSame(9500, $sessions->get($user, 100)['savedAt']);
+    assertSame(1000, $sessions->get($admin, 100)['savedAt'], 'the administrator keeps theirs');
+});

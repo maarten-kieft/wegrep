@@ -69,6 +69,9 @@ final class SessionService
         if (strlen($state) > self::MAX_STATE_BYTES) {
             throw new ApiException('De sessie is te groot om op te slaan', 413);
         }
+        if ($this->isTakenOver($userId, $gameId)) {
+            throw new ApiException('Deze sessie is overgenomen door een beheerder', 410);
+        }
         $pdo = $this->db->pdo();
         $row = [
             $userId, $gameId, (int) $in['leagueId'], mb_substr((string) ($in['title'] ?? ''), 0, 255),
@@ -101,9 +104,52 @@ final class SessionService
         return ['ok' => true, 'savedAt' => $savedAt];
     }
 
+    /** Whether an administrator took this session over from the user and the user has not acknowledged that yet. */
+    public function isTakenOver(int $userId, int $gameId): bool
+    {
+        $stmt = $this->db->pdo()->prepare('SELECT 1 FROM session_takeovers WHERE user_id = ? AND game_id = ?');
+        $stmt->execute([$userId, $gameId]);
+        return $stmt->fetchColumn() !== false;
+    }
+
+    /**
+     * Move a session from its owner to an administrator. The owner loses it (and is told by a 410 the next
+     * time one of their devices syncs it); a session the administrator already has for the same game is replaced.
+     */
+    public function takeOver(int $adminId, int $userId, int $gameId, int $nowMs): array
+    {
+        if ($adminId === $userId) {
+            throw new ApiException('Dit is al je eigen sessie', 400);
+        }
+        $pdo = $this->db->pdo();
+        $pdo->beginTransaction();
+        try {
+            $find = $pdo->prepare('SELECT id FROM game_sessions WHERE user_id = ? AND game_id = ? FOR UPDATE');
+            $find->execute([$userId, $gameId]);
+            $id = $find->fetchColumn();
+            if ($id === false) {
+                throw new ApiException('Sessie niet gevonden', 404);
+            }
+            $pdo->prepare('DELETE FROM game_sessions WHERE user_id = ? AND game_id = ?')->execute([$adminId, $gameId]);
+            $pdo->prepare('UPDATE game_sessions SET user_id = ? WHERE id = ?')->execute([$adminId, $id]);
+            $pdo->prepare('INSERT INTO session_takeovers (user_id, game_id, taken_at) VALUES (?, ?, ?)
+                           ON DUPLICATE KEY UPDATE taken_at = VALUES(taken_at)')->execute([$userId, $gameId, $nowMs]);
+            $pdo->commit();
+        } catch (\Throwable $e) {
+            if ($pdo->inTransaction()) {
+                $pdo->rollBack();
+            }
+            throw $e;
+        }
+        return $this->get($adminId, $gameId);
+    }
+
+    /** Delete the user's session. Also how a device acknowledges that the session was taken over. */
     public function delete(int $userId, int $gameId): void
     {
-        $this->db->pdo()->prepare('DELETE FROM game_sessions WHERE user_id = ? AND game_id = ?')->execute([$userId, $gameId]);
+        $pdo = $this->db->pdo();
+        $pdo->prepare('DELETE FROM game_sessions WHERE user_id = ? AND game_id = ?')->execute([$userId, $gameId]);
+        $pdo->prepare('DELETE FROM session_takeovers WHERE user_id = ? AND game_id = ?')->execute([$userId, $gameId]);
     }
 
     private static function summary(array $row): array

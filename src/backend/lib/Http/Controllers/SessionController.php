@@ -24,7 +24,11 @@ final class SessionController
     /** GET /sessions/{gameId} */
     public function show(string $gameId): array
     {
-        return $this->sessions->get($this->userId(), (int) $gameId) ?? throw new ApiException('Geen sessie voor deze wedstrijd', 404);
+        $session = $this->sessions->get($this->userId(), (int) $gameId);
+        if ($session === null && $this->sessions->isTakenOver($this->userId(), (int) $gameId)) {
+            throw new ApiException('Deze sessie is overgenomen door een beheerder', 410);
+        }
+        return $session ?? throw new ApiException('Geen sessie voor deze wedstrijd', 404);
     }
 
     /** PUT /sessions/{gameId}: save (409 when a newer one is stored) */

@@ -4,6 +4,7 @@ import { computed, onMounted, ref } from 'vue'
 import { api } from '../api'
 import { currentUser } from '../auth'
 import AppHeader from '../components/AppHeader.vue'
+import TakeOverButton from '../components/TakeOverButton.vue'
 import type { AdminSession, AdminUser } from '../types'
 import { btn, card } from '../ui'
 
@@ -80,7 +81,11 @@ const when = (ms: number) => new Date(ms).toLocaleString('nl-NL', { day: 'numeri
               <div class="text-sm text-muted-foreground truncate">{{ fullName(x.user) }} · {{ x.user.email }}</div>
             </div>
             <!-- A separate browser tab, so the list stays where it is. -->
-            <RouterLink :to="`/admin/sessions/${x.user.id}/${x.gameId}`" target="_blank" :class="btn('default', 'sm')">Bekijken</RouterLink>
+            <div class="flex gap-2">
+              <RouterLink :to="`/admin/sessions/${x.user.id}/${x.gameId}`" target="_blank" :class="btn('default', 'sm')">Bekijken</RouterLink>
+              <TakeOverButton v-if="x.user.id !== currentUser?.id" size="sm" :user-id="x.user.id" :game-id="x.gameId" :league-id="x.leagueId"
+                :title="x.title" :owner="fullName(x.user)" />
+            </div>
           </div>
         </div>
       </section>

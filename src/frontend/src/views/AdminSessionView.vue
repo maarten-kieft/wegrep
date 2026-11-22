@@ -1,7 +1,9 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
 import { api } from '../api'
+import { currentUser } from '../auth'
 import AppHeader from '../components/AppHeader.vue'
+import TakeOverButton from '../components/TakeOverButton.vue'
 import { formatTime } from '../time'
 import type { RemoteSession, Side } from '../types'
 import { card } from '../ui'
@@ -56,8 +58,10 @@ const when = (ms: number) => new Date(ms).toLocaleString('nl-NL', { day: 'numeri
       <p v-else-if="!session" class="text-center text-muted-foreground py-8">Laden…</p>
 
       <template v-else-if="report">
-        <div class="rounded-lg bg-warning/10 text-warning p-3 text-sm">
-          Alleen kijken: dit is de sessie van een andere gebruiker. Hier kun je niets wijzigen.
+        <div class="rounded-lg bg-warning/10 text-warning p-3 text-sm flex flex-wrap items-center justify-between gap-3">
+          <span>Alleen kijken: dit is de sessie van een andere gebruiker. Hier kun je niets wijzigen.</span>
+          <TakeOverButton v-if="userId !== currentUser?.id" :user-id="userId" :game-id="gameId" :league-id="session.leagueId"
+            :title="session.title" owner="de gebruiker" />
         </div>
 
         <div :class="[card, 'p-4 text-center space-y-1']">

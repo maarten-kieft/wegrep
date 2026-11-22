@@ -46,6 +46,8 @@ export const api = {
   removeUser: (id: number) => request<{ ok: true }>(`/admin/users/${id}`, { method: 'DELETE' }),
   setRole: (id: number, role: 'user' | 'administrator') =>
     request<User>(`/admin/users/${id}`, { method: 'PATCH', body: JSON.stringify({ role }) }),
+  takeOverSession: (userId: number, gameId: number) =>
+    request<RemoteSession>('/admin/sessions/' + userId + '/' + gameId + '/take-over', { method: 'POST' }),
   adminSessions: () => request<AdminSession[]>('/admin/sessions'),
   adminSession: (userId: number, gameId: number) => request<RemoteSession>(`/admin/sessions/${userId}/${gameId}`),
   sessions: () => request<SessionSummary[]>('/sessions'),

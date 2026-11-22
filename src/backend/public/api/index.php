@@ -77,6 +77,7 @@ try {
         ->add('DELETE', '/admin/users/(\d+)',    $admin->remove(...))
         ->add('GET',  '/admin/sessions',         $admin->sessions(...))
         ->add('GET',  '/admin/sessions/(\d+)/(\d+)', $admin->session(...))
+        ->add('POST', '/admin/sessions/(\d+)/(\d+)/take-over', $admin->takeOver(...))
         ->add('GET',  '/sessions',               $sessions->list(...))
         ->add('GET',  '/sessions/(\d+)',         $sessions->show(...))
         ->add('PUT',  '/sessions/(\d+)',         $sessions->save(...))
