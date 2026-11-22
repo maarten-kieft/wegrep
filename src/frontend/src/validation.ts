@@ -31,8 +31,12 @@ export const MAX_ASSISTANTS = 3
 /** A team needs at least one player (team officials do not count). */
 export const hasNoPlayers = (players: Player[]) => !players.some((p) => p.position !== 'TO')
 
-/** How many captains (C) the dressed players of a team have: it has to be exactly one. */
+/** How many captains (C) and assistant captains (A) the dressed players of a team have. */
 export const captainCount = (players: Player[]) => players.filter((p) => isDressed(p) && p.captain === 'C').length
+export const assistantCount = (players: Player[]) => players.filter((p) => isDressed(p) && p.captain === 'A').length
+
+/** From season 26/27 a team has one captain, or no captain and one to three assistants. */
+export const leadershipMissing = (players: Player[]) => captainCount(players) === 0 && assistantCount(players) === 0
 
 /** What is wrong with the lineup of one team. Empty = fine. */
 export function validateTeam(players: Player[]): string[] {
@@ -50,9 +54,9 @@ export function validateTeam(players: Player[]): string[] {
     if (problem) problems.push(`The number of ${fullName(p)} ${problem}.`)
   }
   const captains = captainCount(players)
-  if (captains === 0) problems.push('Choose a captain (C).')
+  if (leadershipMissing(players)) problems.push('Choose a captain (C), or at least one assistant captain (A) when the team has no captain.')
   if (captains > 1) problems.push('Only one captain (C) is allowed.')
-  if (playing.filter((p) => isDressed(p) && p.captain === 'A').length > MAX_ASSISTANTS) {
+  if (assistantCount(players) > MAX_ASSISTANTS) {
     problems.push(`At most ${MAX_ASSISTANTS} assistant captains (A) are allowed.`)
   }
   return problems

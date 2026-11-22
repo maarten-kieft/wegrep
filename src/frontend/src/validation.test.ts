@@ -48,12 +48,13 @@ describe('validateTeam', () => {
     const problems = validateTeam([...goodTeam(), player({ id: '3', jersey: '', lastname: 'Roe' })])
     expect(problems).toEqual(['Roe Jane has no number. Give a number, or remove the player.'])
   })
-  it('wants exactly one captain', () => {
-    expect(validateTeam([player(), player({ id: '2', jersey: '10' })])).toEqual(['Choose a captain (C).'])
+  it('wants a captain, or assistants when there is none, and never two captains', () => {
+    expect(validateTeam([player(), player({ id: '2', jersey: '10' })])).toEqual(['Choose a captain (C), or at least one assistant captain (A) when the team has no captain.'])
+    expect(validateTeam([player({ captain: 'A' }), player({ id: '2', jersey: '10' })])).toEqual([])
     expect(validateTeam([player({ captain: 'C' }), player({ id: '2', jersey: '10', captain: 'C' })])).toEqual(['Only one captain (C) is allowed.'])
   })
   it('does not count an assistant captain, nor a captain without a number', () => {
-    expect(validateTeam([player({ captain: 'A' }), player({ id: '2', jersey: '', captain: 'C' })])).toContain('Choose a captain (C).')
+    expect(validateTeam([player({ id: '1' }), player({ id: '2', jersey: '', captain: 'C' })])).toContain('Choose a captain (C), or at least one assistant captain (A) when the team has no captain.')
   })
   it('stops duplicate and impossible numbers', () => {
     const problems = validateTeam([player({ captain: 'C' }), player({ id: '2', jersey: '9' }), player({ id: '3', jersey: 'x' })])

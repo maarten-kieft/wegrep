@@ -3,7 +3,7 @@ import { Trash2, UserPlus, Users } from 'lucide-vue-next'
 import { computed, ref, watch } from 'vue'
 import type { Player } from '../types'
 import { btn, card } from '../ui'
-import { captainCount, duplicateJerseys, hasNoPlayers, isDressed, jerseyProblem, MAX_ASSISTANTS } from '../validation'
+import { captainCount, duplicateJerseys, hasNoPlayers, isDressed, jerseyProblem, leadershipMissing, MAX_ASSISTANTS } from '../validation'
 import AddPlayerModal from './AddPlayerModal.vue'
 
 // Roster comes from hockeydata; here the jersey number, position and captaincy are filled in.
@@ -42,14 +42,16 @@ const captainId = computed({
     }
   },
 })
-const captainWrong = computed(() => !noPlayers.value && captainCount(props.players) !== 1)
+// Both lists turn red when the team has neither a captain nor an assistant; a team without captain is fine with assistants.
+const leadershipWrong = computed(() => !noPlayers.value && leadershipMissing(props.players))
+const captainWrong = computed(() => !noPlayers.value && (captainCount(props.players) > 1 || leadershipWrong.value))
 
 // Assistant captains (A), chosen the same way: one list per assistant, up to MAX_ASSISTANTS, and an empty
 // list to add the next one. Choosing "–" in a list takes that assistant off again.
 const assistantIds = computed(() => props.players.filter((p) => isDressed(p) && p.captain === 'A').map((p) => p.id))
 const assistantSlots = computed(() => [...assistantIds.value, ...(assistantIds.value.length < MAX_ASSISTANTS ? [''] : [])])
 const assistantChoices = (current: string) => captainChoices.value.filter((p) => p.captain === '' || p.id === current)
-const assistantsWrong = computed(() => assistantIds.value.length > MAX_ASSISTANTS)
+const assistantsWrong = computed(() => assistantIds.value.length > MAX_ASSISTANTS || leadershipWrong.value)
 function setAssistant(current: string, id: string) {
   for (const p of props.players) {
     if (current && p.id === current && p.captain === 'A') p.captain = ''
@@ -110,7 +112,7 @@ const select = 'h-10 w-14 rounded-md border bg-input text-sm text-center'
         <span class="text-sm font-medium w-20 shrink-0">Captain</span>
         <select v-model="captainId" :aria-invalid="captainWrong"
           class="h-10 flex-1 min-w-0 rounded-md border bg-input px-2 text-sm" :class="captainWrong ? 'border-destructive' : 'border-border'">
-          <option value="">Choose the captain…</option>
+          <option value="">{{ assistantIds.length ? 'No captain' : 'Choose the captain…' }}</option>
           <option v-for="p in captainChoices" :key="p.id" :value="p.id">#{{ p.jersey }} {{ fullName(p) }}</option>
         </select>
       </label>
