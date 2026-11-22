@@ -119,3 +119,39 @@ test('the start and end time are read back from a report', function () {
     assertSame('20:00', $state['gamestart']);
     assertSame('21:21', $state['gameend']);
 });
+
+test('a player added last minute is written into the report in EGREP order, one without a jersey is not', function () {
+    $state = GameReport::parse(oldLayoutTemplate());
+    $state['players']['home'][] = [
+        'id' => '777', 'jersey' => '88', 'lastname' => 'Biezen', 'firstname' => 'Jan', 'prefix' => 'van', 'licensenr' => 'N6L309',
+        'birthdate' => '2008-08-14', 'captain' => 'A', 'position' => 'F', 'line' => '', 'starting' => false,
+    ];
+    $state['players']['home'][] = ['id' => '778', 'jersey' => '', 'lastname' => 'Nobody', 'firstname' => 'Not', 'prefix' => '', 'licensenr' => '', 'birthdate' => '', 'captain' => '', 'position' => '', 'line' => '', 'starting' => false];
+    $state['players']['away'][] = ['id' => '900', 'jersey' => 'T1', 'lastname' => 'Baeten', 'firstname' => 'Nick', 'prefix' => '', 'licensenr' => '', 'birthdate' => '1980-09-01', 'captain' => '', 'position' => 'TO', 'line' => '1', 'starting' => false];
+
+    $doc = new DOMDocument();
+    $doc->loadXML(GameReport::build(oldLayoutTemplate(), $state));
+
+    $home = $doc->getElementsByTagName('playersA')->item(0);
+    assertSame(2, $home->getElementsByTagName('player')->length, 'the template player and the new one');
+    $added = $home->getElementsByTagName('player')->item(1);
+    assertSame(
+        ['jerseynr', 'altjerseynr', 'licensenr', 'name1', 'name2', 'name3', 'captain', 'position', 'line', 'sog', 'birthdate', 'extra1', 'extra2', 'startingsix', 'id'],
+        childNames($added)
+    );
+    $value = fn(string $tag) => $added->getElementsByTagName($tag)->item(0)->textContent;
+    assertSame('88', $value('jerseynr'));
+    assertSame('Biezen', $value('name1'));
+    assertSame('van', $value('name3'));
+    assertSame('1', $value('line'));
+    assertSame('0', $value('extra1'));
+
+    $official = $doc->getElementsByTagName('playersB')->item(0)->getElementsByTagName('player')->item(0);
+    assertSame('T1', $official->getElementsByTagName('jerseynr')->item(0)->textContent);
+    assertSame('TO', $official->getElementsByTagName('position')->item(0)->textContent);
+});
+
+test('the name prefix of a player is read from the report', function () {
+    $xml = str_replace('<name3 />', '<name3>van</name3>', oldLayoutTemplate());
+    assertSame('van', GameReport::parse($xml)['players']['home'][0]['prefix']);
+});

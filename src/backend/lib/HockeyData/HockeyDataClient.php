@@ -83,6 +83,40 @@ final class HockeyDataClient
         return trim($body) === '' ? null : $this->json($body);
     }
 
+    /**
+     * Everybody registered with the club of this team who can still be added to the game (EGREP's
+     * "Last minute selectie-update"): the extended lists of players and team officials.
+     *
+     * @return array{players: list<array>, officials: list<array>}
+     */
+    public function eligible(int $gameId, int $teamId): array
+    {
+        $form = http_build_query(['gameId' => $gameId, 'teamId' => $teamId]);
+        $players = $this->json($this->request('POST', $this->url('ExtendedEligiblePlayers'), $form, 'application/x-www-form-urlencoded'));
+        $officials = $this->json($this->request('POST', $this->url('ExtendedEligibleTeamOfficials'), $form, 'application/x-www-form-urlencoded'));
+
+        return [
+            'players' => array_map(static fn(array $p): array => [
+                'id' => (string) $p['id'],
+                'lastname' => (string) ($p['lastname'] ?? ''),
+                'firstname' => (string) ($p['firstname'] ?? ''),
+                'prefix' => (string) ($p['middlename'] ?? ''),
+                'birthdate' => substr((string) ($p['birthdate'] ?? ''), 0, 10),
+                'licensenr' => (string) ($p['licenseNr'] ?? ''),
+                'position' => (string) ($p['position'] ?? ''),
+                'suspended' => (bool) ($p['isSuspended'] ?? false),
+            ], $players),
+            'officials' => array_map(static fn(array $o): array => [
+                'id' => (string) $o['id'],
+                'lastname' => (string) ($o['lastname'] ?? ''),
+                'firstname' => (string) ($o['firstname'] ?? ''),
+                'prefix' => (string) ($o['middlename'] ?? ''),
+                'birthdate' => substr((string) ($o['birthdate'] ?? ''), 0, 10),
+                'job' => (string) ((json_decode((string) ($o['additionalData'] ?? ''), true) ?: [])['job'] ?? ''),
+            ], $officials),
+        ];
+    }
+
     public function precheck(int $gameId, int $homeId, int $awayId): array
     {
         return $this->json($this->get('CheckGameOkStatusBeforeUpload', [

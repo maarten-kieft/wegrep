@@ -41,6 +41,7 @@ return static function (Router $r, Endpoints $c): void {
     $r->add('GET',  '/leagues/(\d+)/games',  $c->leagues->games(...));
     $r->add('GET',  '/games/(\d+)',          $c->games->show(...));
     $r->add('GET',  '/games/(\d+)/precheck', $c->games->precheck(...));
+    $r->add('GET',  '/games/(\d+)/eligible/(\d+)', $c->games->eligible(...));
     $r->add('POST', '/games/(\d+)/preview',  $c->games->preview(...));
     $r->add('POST', '/games/(\d+)/upload',   $c->games->upload(...));
 };

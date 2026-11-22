@@ -185,8 +185,10 @@ async function resetGame() {
 
       <div class="px-4 pt-6 pb-[calc(7rem+env(safe-area-inset-bottom))] max-w-4xl mx-auto space-y-6">
         <div class="space-y-6 lg:grid lg:grid-cols-2 lg:gap-6 lg:space-y-0">
-          <TeamRosterEditor :name="teamName('home')" label="Home Team" :logo="teamLogo('home')" :players="report.players.home" />
-          <TeamRosterEditor :name="teamName('away')" label="Away Team" :logo="teamLogo('away')" :players="report.players.away" />
+          <TeamRosterEditor :name="teamName('home')" label="Home Team" :logo="teamLogo('home')" :players="report.players.home"
+            :game-id="gameId" :team-id="gd.teamaid ?? ''" />
+          <TeamRosterEditor :name="teamName('away')" label="Away Team" :logo="teamLogo('away')" :players="report.players.away"
+            :game-id="gameId" :team-id="gd.teambid ?? ''" />
         </div>
 
         <div :class="[card, 'p-4']">

@@ -1,12 +1,17 @@
 <script setup lang="ts">
-import { Users } from 'lucide-vue-next'
+import { UserPlus, Users } from 'lucide-vue-next'
 import { computed, ref, watch } from 'vue'
 import type { Player } from '../types'
-import { card } from '../ui'
+import { btn, card } from '../ui'
+import AddPlayerModal from './AddPlayerModal.vue'
 
 // Roster comes from hockeydata; here the jersey number, position and captaincy are filled in.
-// Players without a jersey number are not on the game sheet.
-const props = defineProps<{ name: string; label: string; players: Player[]; logo?: string | null }>()
+// Players without a jersey number are not on the game sheet. Someone the coach forgot to select can be
+// added from everybody registered with the club (the "Last minute selectie-update" of the Windows EGREP).
+const props = defineProps<{ name: string; label: string; players: Player[]; logo?: string | null; gameId: number; teamId: number | string }>()
+const adding = ref(false)
+const addPlayer = (p: Player) => { if (!props.players.some((x) => x.id === p.id)) props.players.push(p) }
+const fullName = (p: Player) => `${p.lastname} ${p.firstname}${p.prefix ? ` ${p.prefix}` : ''}`
 const broken = ref(false)
 watch(() => props.logo, () => { broken.value = false })
 
@@ -46,7 +51,7 @@ const duplicates = computed(() => {
           class="w-14 h-10 rounded-md border bg-input text-foreground text-center font-semibold outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50"
           :class="duplicates.has(p.jersey) ? 'border-destructive' : 'border-border'" />
         <div class="flex-1 min-w-0">
-          <p class="text-sm font-medium truncate">{{ p.lastname }} {{ p.firstname }}</p>
+          <p class="text-sm font-medium truncate">{{ fullName(p) }}</p>
           <p class="text-xs text-muted-foreground truncate">{{ p.position === 'TO' ? 'Team official' : p.licensenr }}</p>
         </div>
         <template v-if="p.position !== 'TO'">
@@ -59,6 +64,10 @@ const duplicates = computed(() => {
         </template>
       </div>
       <p v-if="duplicates.size" class="text-sm text-destructive pt-1">Duplicate jersey number: {{ [...duplicates].join(', ') }}</p>
+      <button type="button" :class="btn('outline', 'default', 'w-full bg-transparent mt-2')" @click="adding = true">
+        <UserPlus class="w-4 h-4" /> Add player or official</button>
     </div>
+    <AddPlayerModal v-if="adding" :game-id="gameId" :team-id="teamId" :team-name="name" :players="players"
+      @add="addPlayer" @close="adding = false" />
   </div>
 </template>

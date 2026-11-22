@@ -1,6 +1,6 @@
 import type {
   GameListItem, GameResponse, League, LogoDict, Meta, PrecheckResult, ReportState, UploadResult, User,
-  AdminSession, AdminUser, RemoteSession, SavedGame, SessionSummary,
+  AdminSession, AdminUser, Eligible, RemoteSession, SavedGame, SessionSummary,
 } from './types'
 import { getToken, renewToken, signOut } from './auth'
 
@@ -68,6 +68,7 @@ export const api = {
   games: (leagueId: number, selection: string) =>
     request<GameListItem[]>(`/leagues/${leagueId}/games?selection=${selection}`),
   game: (gameId: number) => request<GameResponse>(`/games/${gameId}`),
+  eligible: (gameId: number, teamId: number | string) => request<Eligible>('/games/' + gameId + '/eligible/' + teamId),
   precheck: (gameId: number, homeId: string, awayId: string) =>
     request<PrecheckResult>(`/games/${gameId}/precheck?homeId=${homeId}&awayId=${awayId}`),
   preview: (gameId: number, templateXml: string, state: ReportState) =>

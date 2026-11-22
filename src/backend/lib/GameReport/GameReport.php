@@ -57,6 +57,7 @@ final class GameReport
                     'jersey' => self::text($xp, $el, 'jerseynr'),
                     'lastname' => self::text($xp, $el, 'name1'),
                     'firstname' => self::text($xp, $el, 'name2'),
+                    'prefix' => self::text($xp, $el, 'name3'),
                     'licensenr' => self::text($xp, $el, 'licensenr'),
                     'birthdate' => self::text($xp, $el, 'birthdate'),
                     'captain' => self::text($xp, $el, 'captain'),
@@ -128,7 +129,9 @@ final class GameReport
             foreach ($state['players'][$side] ?? [] as $p) {
                 $byId[(string) $p['id']] = $p;
             }
+            $inTemplate = [];
             foreach ($xp->query("$tag/player", $game) as $el) {
+                $inTemplate[self::text($xp, $el, 'id')] = true;
                 $p = $byId[self::text($xp, $el, 'id')] ?? null;
                 if ($p === null) {
                     continue;
@@ -138,6 +141,30 @@ final class GameReport
                 self::set($doc, $xp, $el, 'position', (string) ($p['position'] ?? ''));
                 self::set($doc, $xp, $el, 'line', (string) ($p['line'] ?? ''));
                 self::set($doc, $xp, $el, 'startingsix', !empty($p['starting']) ? 'Y' : '');
+            }
+
+            // Players added last minute (EGREP's "Last minute selectie-update"): not in the template, so add them.
+            // Someone without a jersey number is not on the sheet, so there is nothing to write for them.
+            $parent = $xp->query($tag, $game)->item(0) ?? $game->appendChild($doc->createElement($tag));
+            foreach ($state['players'][$side] ?? [] as $p) {
+                $id = (string) ($p['id'] ?? '');
+                if ($id === '' || isset($inTemplate[$id]) || trim((string) ($p['jersey'] ?? '')) === '') {
+                    continue;
+                }
+                $el = $parent->appendChild($doc->createElement('player'));
+                self::add($doc, $el, [
+                    'jerseynr' => trim((string) $p['jersey']),
+                    'name1' => (string) ($p['lastname'] ?? ''),
+                    'name2' => (string) ($p['firstname'] ?? ''),
+                    'name3' => (string) ($p['prefix'] ?? ''),
+                    'captain' => (string) ($p['captain'] ?? ''),
+                    'position' => (string) ($p['position'] ?? ''),
+                    'line' => (string) (($p['line'] ?? '') !== '' ? $p['line'] : '1'),
+                    'birthdate' => (string) ($p['birthdate'] ?? ''),
+                    'licensenr' => (string) ($p['licensenr'] ?? ''),
+                    'id' => $id,
+                    'startingsix' => !empty($p['starting']) ? 'Y' : '',
+                ]);
             }
         }
 

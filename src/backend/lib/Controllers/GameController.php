@@ -30,6 +30,12 @@ final class GameController
         ];
     }
 
+    /** GET /games/{id}/eligible/{teamId}: everybody who can still be added to the lineup of this team */
+    public function eligible(string $gameId, string $teamId): array
+    {
+        return $this->client->eligible((int) $gameId, (int) $teamId);
+    }
+
     /** GET /games/{id}/precheck?homeId=&awayId=: server status of the game before uploading */
     public function precheck(string $gameId): array
     {

@@ -25,6 +25,8 @@ export interface Player {
   jersey: string
   lastname: string
   firstname: string
+  /** Name prefix ("van", "de") as hockeydata keeps it separate from the last name. */
+  prefix?: string
   licensenr: string
   birthdate: string
   captain: string // '', 'C' or 'A'
@@ -186,3 +188,29 @@ export interface AdminSession extends SessionSummary {
 }
 
 export interface AdminSessionDetail extends RemoteSession {}
+
+/** Someone registered with the club who can be added to the lineup at the last minute. */
+export interface EligiblePlayer {
+  id: string
+  lastname: string
+  firstname: string
+  prefix: string
+  birthdate: string
+  licensenr: string
+  position: string
+  suspended: boolean
+}
+
+export interface EligibleOfficial {
+  id: string
+  lastname: string
+  firstname: string
+  prefix: string
+  birthdate: string
+  job: string
+}
+
+export interface Eligible {
+  players: EligiblePlayer[]
+  officials: EligibleOfficial[]
+}
