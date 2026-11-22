@@ -39,7 +39,9 @@ Start the frontend with hot reload (from `src/frontend/`):
 npm run dev                   # http://localhost:5173
 ```
 
-Open http://localhost:5173. Vite proxies every `/api` call to the backend on :8080, so frontend changes reload
+Open http://localhost:5173. Mails the app sends (login codes) never leave your machine; read them in Mailpit on
+http://localhost:8025. The MySQL database is also in docker (data in a volume; reset it with `docker compose down -v`).
+Vite proxies every `/api` call to the backend on :8080, so frontend changes reload
 instantly and PHP changes are live on the next request (`src/backend/` is mounted into the container, no restart
 needed). Only after changing `.env` restart the backend with `docker compose up -d --force-recreate`.
 
@@ -103,7 +105,7 @@ src/
     config.php         settings without secrets
   frontend/            Vue source: views/, components/, gameStore.ts (game state), api.ts (calls to /api)
     public/            icons, manifest and service worker, copied into the build
-  docker-compose.yml   PHP 8.3 + Apache serving backend/
+  docker-compose.yml   PHP 8.3 + Apache serving backend/, MySQL 8.4 and Mailpit (catches all mail)
   .env                 your secrets (gitignored)
 ```
 

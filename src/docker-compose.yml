@@ -1,19 +1,55 @@
-# Local development: PHP + Apache on http://localhost:8080
+# Local development: PHP + Apache on http://localhost:8080, MySQL, and Mailpit (catches all mail).
 # Frontend dev server (hot reload): cd frontend && npm run dev  -> http://localhost:5173
+# Mails the app sends (login codes) show up at http://localhost:8025
 services:
   web:
-    image: php:8.3-apache
+    build: ./docker/web
     ports:
       - "8080:80"
     volumes:
       - ./backend:/var/www/app
     environment:
       APACHE_DOCUMENT_ROOT: /var/www/app/public
+      WEGREP_DB_HOST: db
+      WEGREP_DB_NAME: wegrep
+      WEGREP_DB_USER: wegrep
+      WEGREP_DB_PASSWORD: wegrep
     env_file:
       - path: .env
         required: false
+    depends_on:
+      db:
+        condition: service_healthy
+      mailpit:
+        condition: service_started
     command: >
       bash -c "a2enmod rewrite >/dev/null &&
       sed -ri 's!/var/www/html!/var/www/app/public!g' /etc/apache2/sites-available/*.conf /etc/apache2/apache2.conf &&
       sed -ri 's!AllowOverride None!AllowOverride All!g' /etc/apache2/apache2.conf &&
       apache2-foreground"
+
+  db:
+    image: mysql:8.4
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: wegrep
+      MYSQL_USER: wegrep
+      MYSQL_PASSWORD: wegrep
+    ports:
+      - "127.0.0.1:3307:3306" # for a database tool; the app reaches it as db:3306
+    volumes:
+      - dbdata:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-uroot", "-proot"]
+      interval: 3s
+      timeout: 3s
+      retries: 20
+
+  mailpit:
+    image: axllent/mailpit
+    ports:
+      - "8025:8025" # web inbox
+    # SMTP is on mailpit:1025, inside the compose network only
+
+volumes:
+  dbdata:
