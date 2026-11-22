@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace Wegrep\Http\Controllers;
+namespace Wegrep\Controllers;
 
 use Wegrep\Auth\AdminService;
 use Wegrep\Auth\Authenticator;

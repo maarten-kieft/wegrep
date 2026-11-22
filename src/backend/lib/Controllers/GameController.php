@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace Wegrep\Http\Controllers;
+namespace Wegrep\Controllers;
 
 use Wegrep\Http\ApiException;
 use Wegrep\GameReport\GameReport;

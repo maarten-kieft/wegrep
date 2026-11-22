@@ -99,7 +99,8 @@ src/
     public/            document root: api/index.php (starts the Application), .htaccess; the built SPA lands here
     lib/               PHP classes, namespace Wegrep\<folder>
       Http/            routes.php (the route table: open, any account, or per role), Application (one request), Router, Endpoints
-                       (wires the controllers together) and Controllers/ (the /api endpoints)
+                       (wires the controllers together)
+      Controllers/     the /api endpoints (Meta, Auth, Admin, Session, League, Game)
       HockeyData/      hockeydata LOS6 client and the reader for its .NET BinaryFormatter answers
       GameReport/      EGREP game report XML and the [HD] encryption around it
       Clubs/           ijshockey.nl feed (logos + schedule) and the club filter

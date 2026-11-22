@@ -8,7 +8,7 @@ Runs on any PHP host with Apache + mod_rewrite.
 src/
   backend/           what gets deployed
     public/          document root: api/index.php + .htaccess, the built SPA lands here
-    lib/             PHP: Http/ (router, controllers), Auth/, Sessions/, Storage/ (MySQL, user store, Migrations/), HockeyData/, GameReport/, Clubs/
+    lib/             PHP: Http/ (router, routes), Controllers/, Auth/, Sessions/, Storage/ (MySQL, user store, Migrations/), HockeyData/, GameReport/, Clubs/
     data/            penalty codes (from EGREP's config)
     config.php       settings (no secrets; committed)
   frontend/          Vue source (Vite), builds into backend/public/
