@@ -25,6 +25,9 @@ export const duplicateJerseys = (players: Player[]): Set<string> => {
 
 const fullName = (p: Player) => `${p.lastname} ${p.firstname}`.trim()
 
+/** The manual allows up to three assistant captains from season 26/27. */
+export const MAX_ASSISTANTS = 3
+
 /** A team needs at least one player (team officials do not count). */
 export const hasNoPlayers = (players: Player[]) => !players.some((p) => p.position !== 'TO')
 
@@ -49,6 +52,9 @@ export function validateTeam(players: Player[]): string[] {
   const captains = captainCount(players)
   if (captains === 0) problems.push('Choose a captain (C).')
   if (captains > 1) problems.push('Only one captain (C) is allowed.')
+  if (playing.filter((p) => isDressed(p) && p.captain === 'A').length > MAX_ASSISTANTS) {
+    problems.push(`At most ${MAX_ASSISTANTS} assistant captains (A) are allowed.`)
+  }
   return problems
 }
 

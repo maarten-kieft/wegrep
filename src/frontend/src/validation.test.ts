@@ -95,3 +95,11 @@ describe('validateSubmit', () => {
     expect(validateSubmit(r)).toEqual([])
   })
 })
+
+describe('assistant captains', () => {
+  it('allows up to three, not four', () => {
+    const three = [...goodTeam(), player({ id: '3', jersey: '3', captain: 'A' }), player({ id: '4', jersey: '4', captain: 'A' }), player({ id: '5', jersey: '5', captain: 'A' })]
+    expect(validateTeam(three)).toEqual([])
+    expect(validateTeam([...three, player({ id: '6', jersey: '6', captain: 'A' })])).toEqual(['At most 3 assistant captains (A) are allowed.'])
+  })
+})
