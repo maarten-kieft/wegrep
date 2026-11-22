@@ -74,6 +74,9 @@ export interface ReportState {
   penalties: Penalty[]
   shots: Record<string, Shots>
   livetime: string
+  /** Real start and end of the game as hh:mm; filled in when the game is started and ended, editable. */
+  gamestart?: string
+  gameend?: string
   /** Sent along when building the XML: EGREP writes the period settings into the report. */
   ruleset?: GameRuleset
 }

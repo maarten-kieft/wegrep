@@ -111,6 +111,8 @@ final class GameReport
             'penalties' => $penalties,
             'shots' => $shots,
             'livetime' => self::text($xp, $game, 'livetime'),
+            'gamestart' => self::text($xp, $game, 'gamestart'),
+            'gameend' => self::text($xp, $game, 'gameend'),
         ];
     }
 
@@ -222,6 +224,14 @@ final class GameReport
             $s = $state['shots'][$nr] ?? ['home' => 0, 'away' => 0];
             $el = $shotsEl->appendChild($doc->createElement('period'));
             self::add($doc, $el, ['periodnr' => $nr, 'shots' => (int) $s['home'] . ':' . (int) $s['away']]);
+        }
+
+        // The real start and end of the game as hh:mm (local time of whoever keeps the sheet).
+        foreach (['gamestart', 'gameend'] as $tag) {
+            if (isset($state[$tag])) {
+                $time = trim((string) $state[$tag]);
+                self::set($doc, $xp, $game, $tag, preg_match('/^([01]?\d|2[0-3]):[0-5]\d$/', $time) ? $time : '');
+            }
         }
 
         if (isset($state['livetime'])) {

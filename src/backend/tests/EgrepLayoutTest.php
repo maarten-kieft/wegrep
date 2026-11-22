@@ -102,3 +102,20 @@ test('the upload body has the fields of a real EGREP upload, in the same order a
         $body
     );
 });
+
+test('the real start and end time of the game are written as hh:mm, anything else is left empty', function () {
+    $doc = builtReport(null, ['gamestart' => '20:00', 'gameend' => '21:21']);
+    assertSame('20:00', $doc->getElementsByTagName('gamestart')->item(0)->textContent);
+    assertSame('21:21', $doc->getElementsByTagName('gameend')->item(0)->textContent);
+
+    $bad = builtReport(null, ['gamestart' => '25:99', 'gameend' => 'soon']);
+    assertSame('', $bad->getElementsByTagName('gamestart')->item(0)->textContent);
+    assertSame('', $bad->getElementsByTagName('gameend')->item(0)->textContent);
+});
+
+test('the start and end time are read back from a report', function () {
+    $xml = str_replace('<gamestart /><gameend />', '<gamestart>20:00</gamestart><gameend>21:21</gameend>', oldLayoutTemplate());
+    $state = GameReport::parse($xml);
+    assertSame('20:00', $state['gamestart']);
+    assertSame('21:21', $state['gameend']);
+});

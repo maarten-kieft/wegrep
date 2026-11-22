@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { formatTime, parseTime } from './time'
+import { formatTime, nowHHMM, parseTime } from './time'
 
 describe('formatTime', () => {
   it('formats seconds as mm:ss', () => {
@@ -20,5 +20,12 @@ describe('parseTime', () => {
   it('rejects seconds above 59 and garbage', () => {
     expect(parseTime('10:75')).toBeNull()
     expect(parseTime('abc')).toBeNull()
+  })
+})
+
+describe('nowHHMM', () => {
+  it('writes the local time as hh:mm', () => {
+    expect(nowHHMM(new Date(2026, 10, 22, 9, 5))).toBe('09:05')
+    expect(nowHHMM(new Date(2026, 10, 22, 21, 21))).toBe('21:21')
   })
 })

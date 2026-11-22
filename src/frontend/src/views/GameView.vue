@@ -14,7 +14,7 @@ import { ensureLogos, logoFor } from '../logos'
 import { useGame } from '../gameStore'
 import { meta } from '../meta'
 import { syncConflict, syncTakenOver } from '../sessionSync'
-import { formatTime } from '../time'
+import { formatTime, nowHHMM } from '../time'
 import type { Goal, Penalty, Side } from '../types'
 import { btn, card } from '../ui'
 
@@ -98,12 +98,17 @@ onBeforeUnmount(() => clearInterval(liveTimer))
 function startGame() {
   game.phase.value = 'active'
   if (report.value && !report.value.livetime) report.value.livetime = 'START-1'
+  // The real start time, the moment the game is started (can be corrected when the game has ended).
+  if (report.value && !report.value.gamestart) report.value.gamestart = nowHHMM()
 }
 function endGame() {
   confirmEnd.value = false
   game.stopClock()
   live.value = false
-  if (report.value) report.value.livetime = 'END-GAME'
+  if (report.value) {
+    report.value.livetime = 'END-GAME'
+    report.value.gameend = nowHHMM()
+  }
   game.phase.value = 'ended'
 }
 // Keep the live status ("START-2" etc.) in step with the clock period.
@@ -391,6 +396,21 @@ async function resetGame() {
           <div class="grid grid-cols-2 gap-2">
             <button :class="btn('outline', 'default', 'bg-transparent')" @click="game.phase.value = 'active'">Back to sheet</button>
             <button :class="btn('default')" @click="router.push(back)">Back to Games</button>
+          </div>
+        </div>
+
+        <div v-if="report" :class="[card, 'p-4']">
+          <h3 class="font-semibold mb-1">Game times</h3>
+          <p class="text-xs text-muted-foreground mb-3">The real start and end of the game, as filled in when you started and ended it. Correct them if needed: they are sent with the report.</p>
+          <div class="grid grid-cols-2 gap-3">
+            <label class="space-y-1">
+              <span class="label">Start</span>
+              <input v-model="report.gamestart" type="time" class="field" />
+            </label>
+            <label class="space-y-1">
+              <span class="label">End</span>
+              <input v-model="report.gameend" type="time" class="field" />
+            </label>
           </div>
         </div>
 

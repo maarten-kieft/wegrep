@@ -14,3 +14,8 @@ export function parseTime(text: string): number | null {
   if (sec > 59) return null
   return Number(m[1]) * 60 + sec
 }
+
+/** The current local time as "hh:mm", the way the game start and end are written in the report. */
+export function nowHHMM(now = new Date()): string {
+  return `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`
+}
