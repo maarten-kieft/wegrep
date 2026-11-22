@@ -139,5 +139,4 @@ Use the "Voorbeeld XML" button in a game to see exactly what would be uploaded, 
 ## TODO
 
 - See if its an option to we can upload a gamereport into the current windows application. If possible make it possible to download a gamereport so we can upload it in the application if the normal flow doesn't work
-- Make sure the applications keep running if the internet connection drops. So storing stat ein local storage, run the application as single page. 
 - Remove the claude co pilot from the github history

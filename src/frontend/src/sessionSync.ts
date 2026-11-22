@@ -15,8 +15,18 @@ export const syncConflict = ref<number | null>(null)
 
 const timers = new Map<number, ReturnType<typeof setTimeout>>()
 
+/** Whether the browser thinks it has a connection (a hint: a request can still fail). */
+export const online = ref(navigator.onLine)
+window.addEventListener('online', () => (online.value = true))
+window.addEventListener('offline', () => (online.value = false))
+
 const dirtyIds = () => storage.getJson<number[]>(DIRTY_KEY) ?? []
-const setDirty = (ids: number[]) => storage.setJson(DIRTY_KEY, ids)
+/** How many games have changes that are not on the server yet. */
+export const waitingToSync = ref(dirtyIds().length)
+const setDirty = (ids: number[]) => {
+  storage.setJson(DIRTY_KEY, ids)
+  waitingToSync.value = ids.length
+}
 export const markDirty = (id: number) => { if (!dirtyIds().includes(id)) setDirty([...dirtyIds(), id]) }
 export const clearDirty = (id: number) => setDirty(dirtyIds().filter((x) => x !== id))
 

@@ -38,6 +38,11 @@ also saved to the database (one session per user and game, newest save wins), so
 device: the app asks whether to continue the existing session or start a new one, which removes the old one. When
 there is no connection the browser copy is used and uploaded later. "Mijn wedstrijden" in the user menu lists them.
 
+Offline: once the app has been opened it starts without a connection (service worker), you stay signed in (that is a local
+fact, only a 401 from the server signs you out), the server settings are cached, and a game in progress keeps working
+from the browser; the home screen has a "Doorgaan met" shortcut for it. A pill at the top says when you are offline.
+Starting a new game needs a connection (it loads the rosters).
+
 ## How it talks to hockeydata
 
 Base URL `https://los.hockeydata.net/los/data-asp/api`, the same calls EGREP makes:

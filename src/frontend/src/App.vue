@@ -5,6 +5,7 @@ import { api } from './api'
 import { currentUser, isSignedIn, setUser } from './auth'
 import { loadMeta } from './meta'
 import { startSync } from './sessionSync'
+import SyncStatus from './components/SyncStatus.vue'
 import PendingApprovalView from './views/PendingApprovalView.vue'
 
 const router = useRouter()
@@ -43,6 +44,7 @@ watch(isSignedIn, (signedIn) => {
 </script>
 
 <template>
+  <SyncStatus />
   <div v-if="startError" class="min-h-screen grid place-items-center p-4 text-center text-muted-foreground">
     Cannot reach the server: {{ startError }}
   </div>

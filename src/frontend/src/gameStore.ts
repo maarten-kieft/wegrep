@@ -76,7 +76,10 @@ export function useGame(gameId: number, leagueId: number, resume = false) {
     choice.value = null
     try {
       const local = fresh ? null : readLocal(gameId)
-      const remote = fresh ? null : await fetchRemote()
+      // A game we saved a minute ago on this device (a refresh in the middle of a game) opens at once,
+      // without waiting for the server: we are obviously the device that is working on it.
+      const justUsed = !!local && local.phase === 'active' && Date.now() - local.savedAt < 10 * 60_000
+      const remote = fresh || justUsed ? null : await fetchRemote()
       if (remote && (!local || remote.savedAt > local.savedAt)) {
         // Somewhere (maybe another device) this game was worked on more recently than here.
         if (resume) apply(remote.state)
