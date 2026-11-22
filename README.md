@@ -127,7 +127,7 @@ Set these in `src/.env` and recreate the container:
 | `WEGREP_LOGOS_ENABLED=false` | no club logos from ijshockey.nl, lettered badges only |
 | `WEGREP_ADMIN_EMAIL=you@example.com` | this address is administrator from its first login |
 
-Use the "Voorbeeld XML" button in a game to see exactly what would be uploaded, without sending anything.
+Use "Download XML" at the end of a game to see exactly what would be uploaded, without sending anything.
 
 ## Troubleshooting
 

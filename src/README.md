@@ -59,7 +59,7 @@ The uploaded `serializedData` is the game report XML wrapped by `HdCrypt`:
 `"[HD]" + base64(AES-256-CBC(salt + "<HD>" + base64(gzip(xml)) + "</HD>"))`.
 The key is derived from the text `System.Security.SecureString` (EGREP calls `ToString()` on a SecureString).
 
-Uploading is off by default (`upload_enabled`). The "Voorbeeld XML" button shows what would be sent.
+Uploading is off by default (`upload_enabled`). "Download XML" on the end screen gives the report that would be sent.
 
 ## Club logos
 

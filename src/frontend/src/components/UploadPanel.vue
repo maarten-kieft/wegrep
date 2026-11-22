@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { CloudUpload, Download, FileCode, ServerCrash } from 'lucide-vue-next'
+import { CloudUpload, Download, ServerCrash } from 'lucide-vue-next'
 import { computed, ref, toRaw } from 'vue'
 import { api } from '../api'
 import { downloadText, reportFileName } from '../download'
@@ -19,7 +19,6 @@ const RESULT: Record<string, string> = {
 
 const log = ref<string[]>([])
 const precheck = ref<PrecheckResult | null>(null)
-const previewXml = ref('')
 const busy = ref(false)
 const confirming = ref(false)
 const blueCode = ref('')
@@ -43,17 +42,6 @@ async function check() {
       : 'Game does not exist on the server')
   } catch (e) {
     addLog(`Check failed: ${(e as Error).message}`)
-  }
-}
-
-async function preview() {
-  busy.value = true
-  try {
-    previewXml.value = (await api.preview(props.gameId, props.game.templateXml.value, state())).xml
-  } catch (e) {
-    addLog(`Preview failed: ${(e as Error).message}`)
-  } finally {
-    busy.value = false
   }
 }
 
@@ -104,14 +92,10 @@ async function upload() {
 
     <div v-if="!meta.uploadEnabled" class="flex gap-2 rounded-lg bg-warning/10 text-warning p-3 text-sm">
       <ServerCrash class="w-4 h-4 mt-0.5 shrink-0" />
-      <span>Uploading is switched off on the server (<code>upload_enabled</code> in config.php). You can still check and preview.</span>
+      <span>Uploading is switched off on the server (<code>upload_enabled</code> in config.php). You can still check the status and download the XML.</span>
     </div>
 
-    <div class="grid grid-cols-2 gap-2">
-      <button :class="btn('outline', 'lg', 'h-12 bg-transparent')" @click="check">Check status</button>
-      <button :class="btn('outline', 'lg', 'h-12 bg-transparent')" :disabled="busy" @click="preview">
-        <FileCode class="w-4 h-4" /> Preview XML</button>
-    </div>
+    <button :class="btn('outline', 'lg', 'h-12 bg-transparent w-full')" @click="check">Check status</button>
 
     <div class="space-y-2">
       <button :class="btn('outline', 'lg', 'h-12 bg-transparent w-full')" :disabled="busy" @click="downloadXml">
@@ -145,9 +129,5 @@ async function upload() {
       <li v-for="(l, i) in log" :key="i">{{ l }}</li>
     </ul>
 
-    <details v-if="previewXml" class="rounded-lg bg-muted p-3">
-      <summary class="text-sm font-medium cursor-pointer">XML that will be sent</summary>
-      <pre class="mt-2 text-[11px] whitespace-pre-wrap break-all max-h-80 overflow-y-auto">{{ previewXml }}</pre>
-    </details>
   </div>
 </template>
