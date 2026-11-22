@@ -111,3 +111,11 @@ Use the "Voorbeeld XML" button in a game to see exactly what would be uploaded, 
   `localStorage` and sends it as `X-App-Password` on every request. A `POST /api/login` that sets an `HttpOnly`
   session cookie would keep it out of JavaScript and allow logging out. Fine as is for a small group over HTTPS;
   worth doing before the app is really public.
+- Added user login via e-mail. No passwords. Create user db with e-mail, firstname, lastname, role. Allow creating accounts and user login via e-mailadres. They receive a code (code & link) to login
+- When you create an account it needs to be approved by an administrator. Administrators can also login and have an extra link in the topic screen (right side same level als the back buttons)
+- In the administrator pages administrators can change user roles. A new user registration is just assign a role to it. The roles: user / administrator
+- See if its an option to we can upload a gamereport into the current windows application. If possible make it possible to download a gamereport so we can upload it in the application if the normal flow doesn't work
+- Keep sessions: It should be possible to view which game report was started and everything is saved in both local session as database. Initially in local storage and synced to the backend. (if the interconnection interupts)
+- Make sure the applications keep running if the internet connection drops. So storing stat ein local storage, run the application as single page. 
+- Remove the claude co pilot from the github history
+- Maak een github pipeline die controlleer of alle tests het doen bij een merge request en op main. Bij main moet hij ook deployen naar een sftp omgeving. Credentials lever ik laat via github aan. 
